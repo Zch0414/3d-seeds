@@ -31,26 +31,23 @@ if __name__ == '__main__':
         pass
 
     cv2.namedWindow('SEEDS')
-    cv2.createTrackbar('# Superpixels', 'SEEDS', 100, 1000, nothing)
-    cv2.createTrackbar('Use Prior', 'SEEDS', 0, 10, nothing) # 2
-    cv2.createTrackbar('# Levels', 'SEEDS',0, 10, nothing) # 1
-    cv2.createTrackbar('Iterations', 'SEEDS',0, 20, nothing) # 20
+    cv2.createTrackbar('# Superpixels', 'SEEDS', 100, 900, nothing) # default 400
+    cv2.createTrackbar('Use Prior', 'SEEDS', 1, 5, nothing) # default 2
+    cv2.createTrackbar('# Levels', 'SEEDS', 2, 10, nothing) # default 4
+    cv2.createTrackbar('# Histogram Bins', 'SEEDS', 5, 15, nothing) # default 5
+    cv2.createTrackbar('Iterations', 'SEEDS', 0, 20, nothing) # default 12
 
     seeds = None
     display_mode = 0 
-    num_superpixels = 100 # default 400
-    prior = 1 # default 2
-    num_levels = 1 # default 4
-    num_histogram_bins = 5 # default 5
-
     cap = video.create_capture(fn)
     while True:
         flag, img = cap.read()
         converted_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         height,width,channels = converted_img.shape
         num_superpixels = cv2.getTrackbarPos('# Superpixels', 'SEEDS')
-        num_levels = cv2.getTrackbarPos('# levels', 'SEEDS')
         prior = cv2.getTrackbarPos('Use Prior', 'SEEDS')
+        num_levels = cv2.getTrackbarPos('# levels', 'SEEDS')
+        num_histogram_bins = cv2.getTrackbarPos('# Histogram Bins', 'SEEDS')
         num_iterations = cv2.getTrackbarPos('Iterations', 'SEEDS')
 
         seeds = cv2.ximgproc.createSuperpixelSEEDS(width, height, channels,
