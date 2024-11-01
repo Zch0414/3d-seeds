@@ -1,0 +1,6 @@
+build_opencv/
+opencv_test_code/build/
+install/
+opencv/
+opencv_contrib/
+.vscode/
