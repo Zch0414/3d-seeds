@@ -27,9 +27,27 @@ Build OpenCV with the following command (https://thecodinginterface.com/blog/ope
 
 Test OpenCV with the following command:
 ```
-> modify opencv_test_code/CMakeLists.txt::#3::/your/path/to/install/lib/cmake/opencv4
-> cd opencv_test_code/build
+> cd opencv_test_code
+> modify CMakeLists.txt:#3:/your/path/to/install/lib/cmake/opencv4
+> modify main.cpp:#6:/your/path/to/seeds-3d/opencv_test_code/00.jpg
+> mkdir build && cd build
 > cmake ..
 > make
 > ./test_demo
+```
+
+Try SEEDS demos (Python) with the following command:
+```
+> cd samples/python3
+> python seeds.py
+```
+
+Try SEEDS demos (C++) with the following command:
+```
+> cd samples/cpp
+> modify CMakeLists.txt:#3:/your/path/to/install/lib/cmake/opencv4
+> mkdir build && cd build
+> cmake ..
+> make
+> ./seeds_demo /your/path/to/seeds-3d/opencv_test_code/00.jpg
 ```
