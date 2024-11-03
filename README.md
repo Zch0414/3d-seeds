@@ -1,13 +1,7 @@
 # seeds-3d
 
 
-## Installation
-
-Create the conda environment with the following command:
-```
-> conda env create -f environment.yaml
-> conda activate seeds3d
-```
+## C++ Installation
 
 Build OpenCV with the following command (https://thecodinginterface.com/blog/opencv-cpp-vscode/):
 ```
@@ -36,12 +30,6 @@ Test OpenCV with the following command:
 > ./test_demo
 ```
 
-Try SEEDS demos (Python) with the following command:
-```
-> cd samples/python3
-> python seeds.py
-```
-
 Try SEEDS demos (C++) with the following command:
 ```
 > cd samples/cpp
@@ -50,4 +38,18 @@ Try SEEDS demos (C++) with the following command:
 > cmake ..
 > make
 > ./seeds_demo /your/path/to/seeds-3d/opencv_test_code/00.jpg
+```
+
+## Python Installation
+
+Create the conda environment with the following command:
+```
+> conda env create -f environment.yaml
+> conda activate seeds3d
+```
+
+Try SEEDS demos (Python) with the following command:
+```
+> cd samples/python3
+> python seeds.py
 ```
