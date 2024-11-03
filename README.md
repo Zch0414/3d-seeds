@@ -28,8 +28,8 @@ Build OpenCV with the following command (https://thecodinginterface.com/blog/ope
 Test OpenCV with the following command:
 ```
 > cd opencv_test_code
-> modify CMakeLists.txt:#3:/your/path/to/install/lib/cmake/opencv4
-> modify main.cpp:#6:/your/path/to/seeds-3d/opencv_test_code/00.jpg
+> [manually modify] CMakeLists.txt:#3:/your/path/to/install/lib/cmake/opencv4
+> [manually modify] main.cpp:#6:/your/path/to/seeds-3d/opencv_test_code/00.jpg
 > mkdir build && cd build
 > cmake ..
 > make
@@ -45,7 +45,7 @@ Try SEEDS demos (Python) with the following command:
 Try SEEDS demos (C++) with the following command:
 ```
 > cd samples/cpp
-> modify CMakeLists.txt:#3:/your/path/to/install/lib/cmake/opencv4
+> [manually modify] CMakeLists.txt:#3:/your/path/to/install/lib/cmake/opencv4
 > mkdir build && cd build
 > cmake ..
 > make
