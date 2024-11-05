@@ -234,6 +234,7 @@ void SuperpixelSEEDSImpl::iterate(InputArray img, int num_iterations)
     for (int i = 0; i < num_iterations; ++i)
         updatePixels();
 }
+
 void SuperpixelSEEDSImpl::getLabels(OutputArray labels_out)
 {
     labels_out.assign(labels_mat);
