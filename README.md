@@ -32,7 +32,7 @@ Test OpenCV with the following command:
 
 Try SEEDS demos (C++) with the following command:
 ```
-> cd samples/cpp
+> cd opencv_samples/cpp
 > [manually modify] CMakeLists.txt:#3:/your/path/to/install/lib/cmake/opencv4
 > mkdir build && cd build
 > cmake ..
@@ -50,6 +50,6 @@ Create the conda environment with the following command:
 
 Try SEEDS demos (Python) with the following command:
 ```
-> cd samples/python3
+> cd opencv_samples/python3
 > python seeds.py
 ```
