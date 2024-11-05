@@ -3,7 +3,7 @@ install/
 opencv/
 opencv_contrib/
 **/build/
-samples/nifti_to_array.py
-samples/BraTS-GLI-00000-000-t1c.nii.gz
+nifti_to_array.py
+BraTS-GLI-00000-000-t1c.nii.gz
 .* 
 ! .gitignore
