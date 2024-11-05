@@ -2,9 +2,8 @@ build_opencv/
 install/
 opencv/
 opencv_contrib/
-.vscode/
 **/build/
 samples/nifti_to_array.py
 samples/BraTS-GLI-00000-000-t1c.nii.gz
-**/.DS_Store
-**/log.txt
+.* 
+! .gitignore
