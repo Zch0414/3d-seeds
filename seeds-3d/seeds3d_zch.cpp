@@ -1,4 +1,5 @@
 #include "precomp.hpp"
+#include "seeds3d_zch.hpp"
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -19,7 +20,7 @@ typedef float HISTN;
 namespace cv {
 namespace ximgproc {
 
-class SuperpixelSEEDS3DImpl
+class SuperpixelSEEDS3DImpl : public SuperpixelSEEDS3D
 {
 public:
 
@@ -132,11 +133,11 @@ private:
     vector<Mat> parent_pre_init_mat;
 };
 
-CV_EXPORTS Ptr<SuperpixelSEEDS3D> createSuperpixelSEEDS3D(int image_width, int image_height,
+CV_EXPORTS Ptr<SuperpixelSEEDS3D> createSuperpixelSEEDS3D(int image_width, int image_height, int image_depth,
         int image_channels, int num_superpixels, int num_levels, int prior, int histogram_bins,
         bool double_step)
 {
-    return makePtr<SuperpixelSEEDS3DImpl>(image_width, image_height, image_channels,
+    return makePtr<SuperpixelSEEDS3DImpl>(image_width, image_height, image_depth, image_channels,
             num_superpixels, num_levels, prior, histogram_bins, double_step);
 }
 
