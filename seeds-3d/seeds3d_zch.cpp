@@ -795,7 +795,7 @@ int SuperpixelSEEDS3DImpl::goDownOneLevel()
     int labels_new_level = nrLabels(new_level);
     //the lowest level (0) has 1 partition, all higher levels are
     //initially partitioned into 4
-    int partitions = new_level ? 4 : 1;
+    int partitions = new_level ? 8 : 1;
 
     for (int label = 0; label < labels_new_level; ++label)
     {
