@@ -39,8 +39,7 @@
 //
 //M*/
 
-#ifndef __OPENCV_SEEDS_HPP__
-#define __OPENCV_SEEDS_HPP__
+
 #ifdef __cplusplus
 
 #include <opencv2/core.hpp>
@@ -180,4 +179,4 @@ CV_EXPORTS_W Ptr<SuperpixelSEEDS3D> createSuperpixelSEEDS3D(
 }
 }
 #endif
-#endif
+
