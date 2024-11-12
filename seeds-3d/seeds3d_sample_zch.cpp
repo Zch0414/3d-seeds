@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <random>
 #include <iostream>
+#include <fstream>
 
 using namespace cv;
 using namespace cv::ximgproc;
@@ -18,40 +19,61 @@ using namespace std;
 
 int main()
 {
+    int depth = 48;
     int height = 192;
     int width = 192;
-    int depth = 48;
 
-    Mat img_data = Mat(3, (int[]){height, width, depth}, CV_32SC1);
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
+    // std::uniform_int_distribution<> dis(INT_MIN, INT_MAX);
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(INT_MIN, INT_MAX);
+    // for (int i = 0; i < height; i++) {
+    //     for (int j = 0; j < width; j++) {
+    //         for (int k = 0; k < depth; k++) {
+    //             img_data.at<int>(i, j, k) = dis(gen)%255;  
+    //         }
+    //     }
+    // }
 
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            for (int k = 0; k < depth; k++) {
-                img_data.at<int>(i, j, k) = dis(gen)%255;  
-            }
-        }
+    std::ifstream file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/seeds-3d/array_3d.bin", std::ios::binary);
+
+    // Check if the file opened successfully
+    if (!file.is_open()) {
+        std::cerr << "Error opening file!" << std::endl;
+        return -1;
     }
 
+    // Create a 1D vector to hold the data
+    std::vector<float> data(depth * height * width);
 
-   
-    Ptr<SuperpixelSEEDS3D> seeds;
-    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 125, 3, 5, 10, 0);
+    // Read the binary data into the vector
+    file.read(reinterpret_cast<char*>(data.data()), depth * height * width * sizeof(float));
+    file.close();
+    
+    Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
+    std::cout << "Value at (24, 96, 96): " << img_data.at<float>(24, 96, 96) << std::endl;
+    
     double t = (double)getTickCount();
-    seeds->iterate(img_data, 20);
+    Ptr<SuperpixelSEEDS3D> seeds;
+    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 432, 2, 2, 5);
+    seeds->iterate(img_data, 4);
     t = ((double)getTickCount() - t) / getTickFrequency();
-    cout << "seeds3d took " << t << " ms";
+    printf("SEEDS segmentation took %i ms with %3i superpixels\n",
+            (int) (t * 1000), seeds->getNumberOfSuperpixels());
     
-    Mat labels_result;
-    seeds->getLabels(labels_result);
+    Mat labels;
+    const int num_label_bits = 2;
+    seeds->getLabels(labels);
+    labels &= (1 << num_label_bits) - 1;
+    labels *= 1 << (16 - num_label_bits);
+    std::cout << labels.size[0] << std::endl;
+    std::cout << labels.size[1] << std::endl;
+    std::cout << labels.size[2] << std::endl;
     
-    int* labels = (int*)labels_result.data;
+    int* labels_data = (int*)labels.data;
     for (int i=0; i<192*192*48; i++)
     {
-        cout<<labels[i];
+        cout<<labels_data[i];
         if (i%20==0) cout<<endl;
     }
 

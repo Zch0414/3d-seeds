@@ -51,9 +51,9 @@ private:
     inline bool probability(int image_idx, int label1, int label2, int prior1, int prior2);
     // inline int threebyfour(int x, int y, int label);
     // inline int fourbythree(int x, int y, int label);
+    inline int threebythreebyfour(int x, int y, int z, int label);
     inline int threebyfourbythree(int x, int y, int z, int label);
     inline int fourbythreebythree(int x, int y, int z, int label);
-    inline int threebythreebyfour(int x, int y, int z, int label);
     inline void updateLabels();
     void updatePixels(); // main loop for pixel updating
 
@@ -77,9 +77,9 @@ private:
     // inline bool checkSplit_vf(int a11, int a12, int a13, int a21, int a22, int a23);
     // inline bool checkSplit_vb(int a21, int a22, int a23, int a31, int a32, int a33);
     inline bool checkSplit_3d(
-        int a111, int a121, int a211, int a221, int a311, int a321,
-        int a112, int a122, int a212, int a222, int a312, int a322,
-        int a113, int a123, int a213, int a223, int a313, int a323
+        int a111, int a112, int a121, int a122, int a131, int a132,
+        int a211, int a212, int a221, int a222, int a231, int a232,
+        int a311, int a312, int a321, int a322, int a331, int a332
     );
 
     //compute initial label for sublevels: level <= seeds_top_level
@@ -216,13 +216,13 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
     CV_Assert(seeds_nr_levels > 0);
 
     seeds_top_level = seeds_nr_levels - 1;
-    image_bins_mat = Mat(3, (int[]){height, width, depth}, CV_32SC1);
+    image_bins_mat = Mat(3, (int[]){depth, height, width}, CV_32SC1);
     image_bins = (unsigned int*)image_bins_mat.data;
 
     // init labels
-    labels_mat = Mat(3, (int[]){height, width, depth}, CV_32SC1);
+    labels_mat = Mat(3, (int[]){depth, height, width}, CV_32SC1);
     labels = (int*)labels_mat.data;
-    labels_bottom_mat = Mat(3, (int[]){height, width, depth}, CV_32SC1);
+    labels_bottom_mat = Mat(3, (int[]){depth, height, width}, CV_32SC1);
     labels_bottom = (int*)labels_bottom_mat.data;
     parent.resize(seeds_nr_levels);
     parent_pre_init.resize(seeds_nr_levels);
@@ -234,18 +234,18 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
     nr_whd[3 * level] = nr_seeds_w;
     nr_whd[3 * level + 1] = nr_seeds_h;
     nr_whd[3 * level + 2] = nr_seeds_d;
-    parent_mat.push_back(Mat(3, (int[]){height, width, depth}, CV_32SC1));
+    parent_mat.push_back(Mat(3, (int[]){depth, height, width}, CV_32SC1));
     parent[level] = (int*)parent_mat.back().data;
-    parent_pre_init_mat.push_back(Mat(3, (int[]){height, width, depth}, CV_32SC1));
+    parent_pre_init_mat.push_back(Mat(3, (int[]){depth, height, width}, CV_32SC1));
     parent_pre_init[level] = (int*)parent_pre_init_mat.back().data;
     for (level = 1; level < seeds_nr_levels; level++)
     {
         nr_seeds_w /= 2; // always partitioned in 2x2x2 sub-blocks
         nr_seeds_h /= 2;
         nr_seeds_d /= 2;
-        parent_mat.push_back(Mat(3, (int[]){nr_seeds_h, nr_seeds_w, nr_seeds_d}, CV_32SC1));
+        parent_mat.push_back(Mat(3, (int[]){nr_seeds_d, nr_seeds_h, nr_seeds_w}, CV_32SC1));
         parent[level] = (int*)parent_mat.back().data;
-        parent_pre_init_mat.push_back(Mat(3, (int[]){nr_seeds_h, nr_seeds_w, nr_seeds_d}, CV_32SC1));
+        parent_pre_init_mat.push_back(Mat(3, (int[]){nr_seeds_d, nr_seeds_h, nr_seeds_w}, CV_32SC1));
         parent_pre_init[level] = (int*)parent_pre_init_mat.back().data;
         nr_whd[3 * level] = nr_seeds_w;
         nr_whd[3 * level + 1] = nr_seeds_h;
@@ -263,7 +263,7 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
             }
         }    
     }
-    nr_partitions_mat = Mat(3, (int[]){nr_whd[3 * seeds_top_level + 1], nr_whd[3 * seeds_top_level], nr_whd[3 * seeds_top_level + 2]}, CV_32SC1);
+    nr_partitions_mat = Mat(3, (int[]){nr_whd[3 * seeds_top_level + 2], nr_whd[3 * seeds_top_level + 1], nr_whd[3 * seeds_top_level]}, CV_32SC1);
     nr_partitions = (unsigned int*)nr_partitions_mat.data;
 
     //preinit the labels (these are not changed anymore later)
@@ -287,9 +287,9 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
     T_mat.resize(seeds_nr_levels);
     for (level = 0; level < seeds_nr_levels; level++)
     {
-        histogram_mat[level] = Mat(3, (int[]){nr_whd[3 * level + 1], nr_whd[3 * level], nr_whd[3 * level + 2]*histogram_size_aligned}, CV_32FC1);
+        histogram_mat[level] = Mat(3, (int[]){nr_whd[3 * level + 2], nr_whd[3 * level + 1], nr_whd[3 * level]*histogram_size_aligned}, CV_32FC1);
         histogram[level] = (HISTN*)histogram_mat[level].data;
-        T_mat[level] = Mat(3, (int[]){nr_whd[3 * level + 1], nr_whd[3 * level], nr_whd[3 * level + 2]}, CV_32FC1);
+        T_mat[level] = Mat(3, (int[]){nr_whd[3 * level + 2], nr_whd[3 * level + 1], nr_whd[3 * level]}, CV_32FC1);
         T[level] = (HISTN*)T_mat[level].data;
     }
 }
@@ -298,9 +298,9 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
 template<typename _Tp>
 void SuperpixelSEEDS3DImpl::initImageBins(const Mat& img, int max_value)
 {
-    int img_width = img.size[1];
-    int img_height = img.size[0];
-    int img_depth = img.size[2];
+    int img_width = img.size[2];
+    int img_height = img.size[1];
+    int img_depth = img.size[0];
     int channels = img.channels();
 
     for (int z = 0; z < img_depth; ++z)
@@ -323,9 +323,9 @@ void SuperpixelSEEDS3DImpl::initImageBins(const Mat& img, int max_value)
 template<>
 void SuperpixelSEEDS3DImpl::initImageBins<float>(const Mat& img, int)
 {
-    int img_width = img.size[1];
-    int img_height = img.size[0];
-    int img_depth = img.size[2];
+    int img_width = img.size[2];
+    int img_height = img.size[1];
+    int img_depth = img.size[0];
     int channels = img.channels();
 
     for (int z = 0; z < img_depth; ++z)
@@ -377,8 +377,8 @@ void SuperpixelSEEDS3DImpl::initImage(InputArray img)
 
     assignLabels();
 
-    CV_Assert(src.size().width == width && src.size().height == height);
-    // CV_Assert(_depth == CV_8U || _depth == CV_16U || _depth == CV_32F);
+    CV_Assert(src.size[2] == width && src.size[1] == height && src.size[0] == depth);
+    CV_Assert(_depth == CV_8U || _depth == CV_16U || _depth == CV_32F);
     CV_Assert(src.channels() == nr_channels);
 
     // initialize the histogram bins from the image
@@ -470,25 +470,25 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
 
                 // get the surrounding labels at the top level, to check for splitting
                 int a111 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a121 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x)];
-                int a211 = parent[level][(z - 1) * stepZ + (y) * stepY + (x - 1)];
-                int a221 = parent[level][(z - 1) * stepZ + (y) * stepY + (x)];
-                int a311 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x - 1)];
-                int a321 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x)];
+                int a112 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x)];
+                int a121 = parent[level][(z - 1) * stepZ + (y) * stepY + (x - 1)];
+                int a122 = parent[level][(z - 1) * stepZ + (y) * stepY + (x)];
+                int a131 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x - 1)];
+                int a132 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x)];
 
-                int a112 = parent[level][(z) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a122 = parent[level][(z) * stepZ + (y - 1) * stepY + (x)];
-                int a212 = parent[level][(z) * stepZ + (y) * stepY + (x - 1)];
+                int a211 = parent[level][(z) * stepZ + (y - 1) * stepY + (x - 1)];
+                int a212 = parent[level][(z) * stepZ + (y - 1) * stepY + (x)];
+                int a221 = parent[level][(z) * stepZ + (y) * stepY + (x - 1)];
                 int a222 = parent[level][(z) * stepZ + (y) * stepY + (x)];
-                int a312 = parent[level][(z) * stepZ + (y + 1) * stepY + (x - 1)];
-                int a322 = parent[level][(z) * stepZ + (y + 1) * stepY + (x)];
+                int a231 = parent[level][(z) * stepZ + (y + 1) * stepY + (x - 1)];
+                int a232 = parent[level][(z) * stepZ + (y + 1) * stepY + (x)];
 
-                int a113 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a123 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x)];
-                int a213 = parent[level][(z + 1) * stepZ + (y) * stepY + (x - 1)];
-                int a223 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
-                int a313 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x - 1)];
-                int a323 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x)];
+                int a311 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x - 1)];
+                int a312 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x)];
+                int a321 = parent[level][(z + 1) * stepZ + (y) * stepY + (x - 1)];
+                int a322 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
+                int a331 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x - 1)];
+                int a332 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x)];
 
                 done = false;
                 if( 
@@ -496,9 +496,9 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                     || (
                         nr_partitions[labelA] > 2
                         && checkSplit_3d(
-                            a111, a121, a211, a221, a311, a321, 
-                            a112, a122, a212, a222, a312, a322, // a222 is the anchor label
-                            a113, a123, a213, a223, a313, a323 
+                            a111, a112, a121, a122, a131, a132, 
+                            a211, a212, a221, a222, a231, a232,
+                            a311, a312, a321, a322, a331, a332 
                         )
                     ) 
                 )
@@ -517,35 +517,35 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                 {
                     // try opposite direction
                     sublabel = z * stepZ + y * stepY + x + 1;
-                    int a131 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 1)];
-                    int a141 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 2)];
-                    int a231 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 1)];
-                    int a241 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 2)];
-                    int a331 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 1)];
-                    int a341 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 2)];
+                    int a113 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 1)];
+                    int a114 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 2)];
+                    int a123 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 1)];
+                    int a124 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 2)];
+                    int a133 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 1)];
+                    int a134 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 2)];
 
-                    int a132 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 1)];
-                    int a142 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 2)];
-                    int a232 = parent[level][(z) * stepZ + (y) * stepY + (x + 1)];
-                    int a242 = parent[level][(z) * stepZ + (y) * stepY + (x + 2)];
-                    int a332 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 1)];
-                    int a342 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 2)];
+                    int a213 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 1)];
+                    int a214 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 2)];
+                    int a223 = parent[level][(z) * stepZ + (y) * stepY + (x + 1)];
+                    int a224 = parent[level][(z) * stepZ + (y) * stepY + (x + 2)];
+                    int a233 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 1)];
+                    int a234 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 2)];
 
-                    int a133 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 1)];
-                    int a143 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 2)];
-                    int a233 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 1)];
-                    int a243 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 2)];
+                    int a313 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 1)];
+                    int a314 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 2)];
+                    int a323 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 1)];
+                    int a324 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 2)];
                     int a333 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x + 1)];
-                    int a343 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x + 2)];
+                    int a334 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x + 2)];
                     if( 
                         nr_partitions[labelB] <= 2 // == 2
                         || (
                             nr_partitions[labelB] > 2     
                             && checkSplit_3d(
-                                a131, a141, a231, a241, a331, a341, 
-                                a132, a142, a242, a232, a342, a342, // a232 is the anchor label.
-                                a133, a143, a233, a243, a333, a343
-                            )
+                                a134, a133, a124, a123, a114, a113,
+                                a234, a233, a224, a223, a214, a213,
+                                a334, a333, a324, a323, a314, a313
+                            ) // counterclockwise rotate pi along z
                         ) 
                     )
                     {
@@ -581,35 +581,35 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                     continue;
 
                 int a111 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a121 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x)];
-                int a131 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 1)];
-                int a211 = parent[level][(z - 1) * stepZ + (y) * stepY + (x - 1)];
-                int a221 = parent[level][(z - 1) * stepZ + (y) * stepY + (x)];
-                int a231 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 1)];
+                int a112 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x)];
+                int a113 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 1)];
+                int a121 = parent[level][(z - 1) * stepZ + (y) * stepY + (x - 1)];
+                int a122 = parent[level][(z - 1) * stepZ + (y) * stepY + (x)];
+                int a123 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 1)];
 
-                int a112 = parent[level][(z) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a122 = parent[level][(z) * stepZ + (y - 1) * stepY + (x)];
-                int a132 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 1)];
-                int a212 = parent[level][(z) * stepZ + (y) * stepY + (x - 1)];
+                int a211 = parent[level][(z) * stepZ + (y - 1) * stepY + (x - 1)];
+                int a212 = parent[level][(z) * stepZ + (y - 1) * stepY + (x)];
+                int a213 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 1)];
+                int a221 = parent[level][(z) * stepZ + (y) * stepY + (x - 1)];
                 int a222 = parent[level][(z) * stepZ + (y) * stepY + (x)];
-                int a232 = parent[level][(z) * stepZ + (y) * stepY + (x + 1)];
+                int a223 = parent[level][(z) * stepZ + (y) * stepY + (x + 1)];
 
-                int a113 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a123 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x)];
-                int a133 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 1)];
-                int a213 = parent[level][(z + 1) * stepZ + (y) * stepY + (x - 1)];
-                int a223 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
-                int a233 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 1)];
+                int a311 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x - 1)];
+                int a312 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x)];
+                int a313 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 1)];
+                int a321 = parent[level][(z + 1) * stepZ + (y) * stepY + (x - 1)];
+                int a322 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
+                int a323 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 1)];
 
                 done = false;
                 if( 
                     nr_partitions[labelA] == 2 
                     || (nr_partitions[labelA] > 2
                         && checkSplit_3d(
-                            a111, a121, a131, a211, a221, a231, 
-                            a112, a122, a132, a222, a212, a232, // a222 is the anchor label.
-                            a113, a123, a133, a213, a223, a233 
-                        )
+                            a113, a123, a112, a122, a111, a121,
+                            a213, a223, a212, a222, a211, a221,
+                            a313, a323, a312, a322, a311, a321
+                        ) // counterclockwise rotate pi/2 along z
                     ) 
                 )
                 {
@@ -627,35 +627,35 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                 {
                     // try opposite direction
                     sublabel = z * stepZ + (y + 1) * stepY + x;
-                    int a311 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x - 1)];
-                    int a321 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x)];
-                    int a331 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 1)];
-                    int a411 = parent[level][(z - 1) * stepZ + (y + 2) * stepY + (x - 1)];
-                    int a421 = parent[level][(z - 1) * stepZ + (y + 2) * stepY + (x)];
-                    int a431 = parent[level][(z - 1) * stepZ + (y + 2) * stepY + (x + 1)];
+                    int a131 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x - 1)];
+                    int a132 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x)];
+                    int a133 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 1)];
+                    int a141 = parent[level][(z - 1) * stepZ + (y + 2) * stepY + (x - 1)];
+                    int a142 = parent[level][(z - 1) * stepZ + (y + 2) * stepY + (x)];
+                    int a143 = parent[level][(z - 1) * stepZ + (y + 2) * stepY + (x + 1)];
 
-                    int a312 = parent[level][(z) * stepZ + (y + 1) * stepY + (x - 1)];
-                    int a322 = parent[level][(z) * stepZ + (y + 1) * stepY + (x)];
-                    int a332 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 1)];
-                    int a412 = parent[level][(z) * stepZ + (y + 2) * stepY + (x - 1)];
-                    int a422 = parent[level][(z) * stepZ + (y + 2) * stepY + (x)];
-                    int a432 = parent[level][(z) * stepZ + (y + 2) * stepY + (x + 1)];
+                    int a231 = parent[level][(z) * stepZ + (y + 1) * stepY + (x - 1)];
+                    int a232 = parent[level][(z) * stepZ + (y + 1) * stepY + (x)];
+                    int a233 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 1)];
+                    int a241 = parent[level][(z) * stepZ + (y + 2) * stepY + (x - 1)];
+                    int a242 = parent[level][(z) * stepZ + (y + 2) * stepY + (x)];
+                    int a243 = parent[level][(z) * stepZ + (y + 2) * stepY + (x + 1)];
 
-                    int a313 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x - 1)];
-                    int a323 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x)];
+                    int a331 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x - 1)];
+                    int a332 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x)];
                     int a333 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x + 1)];
-                    int a413 = parent[level][(z + 1) * stepZ + (y + 2) * stepY + (x - 1)];
-                    int a423 = parent[level][(z + 1) * stepZ + (y + 2) * stepY + (x)];
-                    int a433 = parent[level][(z + 1) * stepZ + (y + 2) * stepY + (x + 1)];
+                    int a341 = parent[level][(z + 1) * stepZ + (y + 2) * stepY + (x - 1)];
+                    int a342 = parent[level][(z + 1) * stepZ + (y + 2) * stepY + (x)];
+                    int a343 = parent[level][(z + 1) * stepZ + (y + 2) * stepY + (x + 1)];
                     if( 
                         nr_partitions[labelB] <= 2 // == 2
                         || (
                             nr_partitions[labelB] > 2 
                             && checkSplit_3d(
-                                a311, a321, a331, a411, a421, a431, 
-                                a312, a412, a332, a322, a422, a432, // a322 is the anchor label.
-                                a313, a323, a333, a413, a423, a433
-                            )
+                                a141, a131, a142, a132, a143, a133,
+                                a241, a231, a242, a232, a243, a233,
+                                a341, a331, a342, a332, a343, a333
+                            ) // clockwise rotate pi/2 along z
                         ) 
                     )
                     {
@@ -691,34 +691,34 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                     continue;
 
                 int a111 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a121 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x)];
-                int a131 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 1)];
-                int a211 = parent[level][(z - 1) * stepZ + (y) * stepY + (x - 1)];
-                int a221 = parent[level][(z - 1) * stepZ + (y) * stepY + (x)];
-                int a231 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 1)];
-                int a311 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x - 1)];
-                int a321 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x)];
-                int a331 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 1)];
+                int a112 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x)];
+                int a113 = parent[level][(z - 1) * stepZ + (y - 1) * stepY + (x + 1)];
+                int a121 = parent[level][(z - 1) * stepZ + (y) * stepY + (x - 1)];
+                int a122 = parent[level][(z - 1) * stepZ + (y) * stepY + (x)];
+                int a123 = parent[level][(z - 1) * stepZ + (y) * stepY + (x + 1)];
+                int a131 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x - 1)];
+                int a132 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x)];
+                int a133 = parent[level][(z - 1) * stepZ + (y + 1) * stepY + (x + 1)];
 
-                int a112 = parent[level][(z) * stepZ + (y - 1) * stepY + (x - 1)];
-                int a122 = parent[level][(z) * stepZ + (y - 1) * stepY + (x)];
-                int a132 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 1)];
-                int a212 = parent[level][(z) * stepZ + (y) * stepY + (x - 1)];
+                int a211 = parent[level][(z) * stepZ + (y - 1) * stepY + (x - 1)];
+                int a212 = parent[level][(z) * stepZ + (y - 1) * stepY + (x)];
+                int a213 = parent[level][(z) * stepZ + (y - 1) * stepY + (x + 1)];
+                int a221 = parent[level][(z) * stepZ + (y) * stepY + (x - 1)];
                 int a222 = parent[level][(z) * stepZ + (y) * stepY + (x)];
-                int a232 = parent[level][(z) * stepZ + (y) * stepY + (x + 1)];
-                int a312 = parent[level][(z) * stepZ + (y + 1) * stepY + (x - 1)];
-                int a322 = parent[level][(z) * stepZ + (y + 1) * stepY + (x)];
-                int a332 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 1)];
+                int a223 = parent[level][(z) * stepZ + (y) * stepY + (x + 1)];
+                int a231 = parent[level][(z) * stepZ + (y + 1) * stepY + (x - 1)];
+                int a232 = parent[level][(z) * stepZ + (y + 1) * stepY + (x)];
+                int a233 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 1)];
 
                 done = false;
                 if( 
                     nr_partitions[labelA] == 2 
                     || (nr_partitions[labelA] > 2
                         && checkSplit_3d(
-                            a111, a121, a131, a211, a221, a231, 
-                            a311, a321, a331, a222, a122, a132, // a222 is the anchor label.
-                            a212, a112, a232, a312, a322, a332 
-                        )
+                            a113, a213, a123, a223, a133, a233,
+                            a112, a212, a122, a222, a132, a232,
+                            a111, a211, a121, a221, a131, a231
+                        ) // conterclockwise rotate pi/2 along y
                     ) 
                 )
                 {
@@ -736,34 +736,34 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                 {
                     // try opposite direction
                     sublabel = (z + 1) * stepZ + y * stepY + x;
-                    int a113 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x - 1)];
-                    int a123 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x)];
-                    int a133 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 1)];
-                    int a213 = parent[level][(z + 1) * stepZ + (y) * stepY + (x - 1)];
-                    int a223 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
-                    int a233 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 1)];
-                    int a313 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x - 1)];
-                    int a323 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x)];
+                    int a311 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x - 1)];
+                    int a312 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x)];
+                    int a313 = parent[level][(z + 1) * stepZ + (y - 1) * stepY + (x + 1)];
+                    int a321 = parent[level][(z + 1) * stepZ + (y) * stepY + (x - 1)];
+                    int a322 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
+                    int a323 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 1)];
+                    int a331 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x - 1)];
+                    int a332 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x)];
                     int a333 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x + 1)];
 
-                    int a114 = parent[level][(z + 2) * stepZ + (y - 1) * stepY + (x - 1)];
-                    int a124 = parent[level][(z + 2) * stepZ + (y - 1) * stepY + (x)];
-                    int a134 = parent[level][(z + 2) * stepZ + (y - 1) * stepY + (x + 1)];
-                    int a214 = parent[level][(z + 2) * stepZ + (y) * stepY + (x - 1)];
-                    int a224 = parent[level][(z + 2) * stepZ + (y) * stepY + (x)];
-                    int a234 = parent[level][(z + 2) * stepZ + (y) * stepY + (x + 1)];
-                    int a314 = parent[level][(z + 2) * stepZ + (y + 1) * stepY + (x - 1)];
-                    int a324 = parent[level][(z + 2) * stepZ + (y + 1) * stepY + (x)];
-                    int a334 = parent[level][(z + 2) * stepZ + (y + 1) * stepY + (x + 1)];
+                    int a411 = parent[level][(z + 2) * stepZ + (y - 1) * stepY + (x - 1)];
+                    int a412 = parent[level][(z + 2) * stepZ + (y - 1) * stepY + (x)];
+                    int a413 = parent[level][(z + 2) * stepZ + (y - 1) * stepY + (x + 1)];
+                    int a421 = parent[level][(z + 2) * stepZ + (y) * stepY + (x - 1)];
+                    int a422 = parent[level][(z + 2) * stepZ + (y) * stepY + (x)];
+                    int a423 = parent[level][(z + 2) * stepZ + (y) * stepY + (x + 1)];
+                    int a431 = parent[level][(z + 2) * stepZ + (y + 1) * stepY + (x - 1)];
+                    int a432 = parent[level][(z + 2) * stepZ + (y + 1) * stepY + (x)];
+                    int a433 = parent[level][(z + 2) * stepZ + (y + 1) * stepY + (x + 1)];
                     if( 
                         nr_partitions[labelB] <= 2 // == 2
                         || (
                             nr_partitions[labelB] > 2 
                             && checkSplit_3d(
-                                a113, a123, a133, a213, a114, a233, 
-                                a313, a323, a333, a223, a124, a134, // a223 is the anchor label.
-                                a214, a224, a234, a314, a324, a334 
-                            )
+                                a411, a311, a421, a321, a431, a331, 
+                                a412, a312, a422, a322, a432, a332, 
+                                a413, a313, a423, a323, a433, a333 
+                            ) // clockwise rotate pi/2 along y
                         ) 
                     )
                     {
@@ -785,31 +785,31 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
 int SuperpixelSEEDS3DImpl::goDownOneLevel()
 {
     int old_level = seeds_current_level;
-    int new_level = seeds_current_level - 1;
+    int alevel = seeds_current_level - 1;
 
-    if( new_level < 0 )
+    if( alevel < 0 )
         return -1;
 
     // reset nr_partitions
     memset(nr_partitions, 0, sizeof(int) * nrLabels(seeds_top_level));
 
-    // go through labels of new_level
-    int labels_new_level = nrLabels(new_level);
+    // go through labels of alevel
+    int labels_alevel = nrLabels(alevel);
     //the lowest level (0) has 1 partition, all higher levels are
     //initially partitioned into 4
-    int partitions = new_level ? 8 : 1;
+    int partitions = alevel ? 8 : 1;
 
-    for (int label = 0; label < labels_new_level; ++label)
+    for (int label = 0; label < labels_alevel; ++label)
     {
         // assign parent = parent of old_label
-        int& cur_parent = parent[new_level][label];
+        int& cur_parent = parent[alevel][label];
         int p = parent[old_level][cur_parent];
         cur_parent = p;
 
         nr_partitions[p] += partitions;
     }
 
-    return new_level;
+    return alevel;
 }
 
 void SuperpixelSEEDS3DImpl::updatePixels()
@@ -826,48 +826,48 @@ void SuperpixelSEEDS3DImpl::updatePixels()
             for (int x = 1; x < width - 2; x++)
             {
 
-                labelA = labels[(z) * width * height + (y) * width + (x)];
-                labelB = labels[(z) * width * height + (y) * width + (x + 1)];
+                labelA = labels[(z) * width * height + (y) * width + (x)]; // a222
+                labelB = labels[(z) * width * height + (y) * width + (x + 1)]; // a223
 
                 if( labelA != labelB )
                 {
                     int a222 = labelA;
-                    int a232 = labelB;
+                    int a223 = labelB;
                     if( forwardbackward )
                     {
                         // horizontal bidirectional
                         int a111 = labels[(z - 1) * width * height + (y - 1) * width + (x - 1)];
-                        int a121 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
-                        int a211 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
-                        int a221 = labels[(z - 1) * width * height + (y) * width + (x)];
-                        int a311 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
-                        int a321 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
+                        int a112 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
+                        int a121 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
+                        int a122 = labels[(z - 1) * width * height + (y) * width + (x)];
+                        int a131 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
+                        int a132 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
 
-                        int a112 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
-                        int a122 = labels[(z) * width * height + (y - 1) * width + (x)];
-                        int a212 = labels[(z) * width * height + (y) * width + (x - 1)];
+                        int a211 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
+                        int a212 = labels[(z) * width * height + (y - 1) * width + (x)];
+                        int a221 = labels[(z) * width * height + (y) * width + (x - 1)];
                         // int a222 = labels[(z) * width * height + (y) * width + (x)];
-                        int a312 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
-                        int a322 = labels[(z) * width * height + (y + 1) * width + (x)];
+                        int a231 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
+                        int a232 = labels[(z) * width * height + (y + 1) * width + (x)];
 
-                        int a113 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
-                        int a123 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
-                        int a213 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
-                        int a223 = labels[(z + 1) * width * height + (y) * width + (x)];
-                        int a313 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
-                        int a323 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
+                        int a311 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
+                        int a312 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
+                        int a321 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
+                        int a322 = labels[(z + 1) * width * height + (y) * width + (x)];
+                        int a331 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
+                        int a332 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
                         if( 
                             checkSplit_3d(
-                                a111, a121, a211, a221, a311, a321, 
-                                a112, a122, a212, a222, a312, a322, // a222 is the anchor label
-                                a113, a123, a213, a223, a313, a323 
+                                a111, a112, a121, a122, a131, a132, 
+                                a211, a212, a221, a222, a231, a232,
+                                a311, a312, a321, a322, a331, a332 
                             ) 
                         )
                         {
                             if( seeds_prior )
                             {
-                                priorA = threebyfourbythree(x, y, z, labelA);
-                                priorB = threebyfourbythree(x, y, z, labelB);
+                                priorA = threebythreebyfour(x, y, z, labelA);
+                                priorB = threebythreebyfour(x, y, z, labelB);
                             }
 
                             if( probability(z * width * height + y * width + x, labelA, labelB, priorA, priorB) )
@@ -876,32 +876,32 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                             }
                             else
                             {
-                                int a131 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
-                                int a141 = labels[(z - 1) * width * height + (y - 1) * width + (x + 2)];
-                                int a231 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
-                                int a241 = labels[(z - 1) * width * height + (y) * width + (x + 2)];
-                                int a331 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
-                                int a341 = labels[(z - 1) * width * height + (y + 1) * width + (x + 2)];
+                                int a113 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
+                                int a114 = labels[(z - 1) * width * height + (y - 1) * width + (x + 2)];
+                                int a123 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
+                                int a124 = labels[(z - 1) * width * height + (y) * width + (x + 2)];
+                                int a133 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
+                                int a134 = labels[(z - 1) * width * height + (y + 1) * width + (x + 2)];
 
-                                int a132 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
-                                int a142 = labels[(z) * width * height + (y - 1) * width + (x + 2)];
-                                // int a232 = labels[(z) * width * height + (y) * width + (x + 1)];
-                                int a242 = labels[(z) * width * height + (y) * width + (x + 2)];
-                                int a332 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
-                                int a342 = labels[(z) * width * height + (y + 1) * width + (x + 2)];
+                                int a213 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
+                                int a214 = labels[(z) * width * height + (y - 1) * width + (x + 2)];
+                                // int a223 = labels[(z) * width * height + (y) * width + (x + 1)];
+                                int a224 = labels[(z) * width * height + (y) * width + (x + 2)];
+                                int a233 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
+                                int a234 = labels[(z) * width * height + (y + 1) * width + (x + 2)];
 
-                                int a133 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
-                                int a143 = labels[(z + 1) * width * height + (y - 1) * width + (x + 2)];
-                                int a233 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
-                                int a243 = labels[(z + 1) * width * height + (y) * width + (x + 2)];
+                                int a313 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
+                                int a314 = labels[(z + 1) * width * height + (y - 1) * width + (x + 2)];
+                                int a323 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
+                                int a324 = labels[(z + 1) * width * height + (y) * width + (x + 2)];
                                 int a333 = labels[(z + 1) * width * height + (y + 1) * width + (x + 1)];
-                                int a343 = labels[(z + 1) * width * height + (y + 1) * width + (x + 2)];
+                                int a334 = labels[(z + 1) * width * height + (y + 1) * width + (x + 2)];
                                 if( 
                                     checkSplit_3d(
-                                        a131, a141, a231, a241, a331, a341, 
-                                        a132, a142, a242, a232, a342, a342, // a232 is the anchor label.
-                                        a133, a143, a233, a243, a333, a343
-                                    ) 
+                                        a134, a133, a124, a123, a114, a113,
+                                        a234, a233, a224, a223, a214, a213,
+                                        a334, a333, a324, a323, a314, a313
+                                    ) // counterclockwise rotate pi along z
                                 )
                                 {
                                     if( probability(z * width * height + y * width + x + 1, labelB, labelA, priorB, priorA) )
@@ -916,38 +916,38 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                     else
                     { // forward backward
                         // horizontal bidirectional
-                        int a131 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
-                        int a141 = labels[(z - 1) * width * height + (y - 1) * width + (x + 2)];
-                        int a231 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
-                        int a241 = labels[(z - 1) * width * height + (y) * width + (x + 2)];
-                        int a331 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
-                        int a341 = labels[(z - 1) * width * height + (y + 1) * width + (x + 2)];
+                        int a113 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
+                        int a114 = labels[(z - 1) * width * height + (y - 1) * width + (x + 2)];
+                        int a123 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
+                        int a124 = labels[(z - 1) * width * height + (y) * width + (x + 2)];
+                        int a133 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
+                        int a134 = labels[(z - 1) * width * height + (y + 1) * width + (x + 2)];
 
-                        int a132 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
-                        int a142 = labels[(z) * width * height + (y - 1) * width + (x + 2)];
-                        // int a232 = labels[(z) * width * height + (y) * width + (x + 1)];
-                        int a242 = labels[(z) * width * height + (y) * width + (x + 2)];
-                        int a332 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
-                        int a342 = labels[(z) * width * height + (y + 1) * width + (x + 2)];
+                        int a213 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
+                        int a214 = labels[(z) * width * height + (y - 1) * width + (x + 2)];
+                        // int a223 = labels[(z) * width * height + (y) * width + (x + 1)];
+                        int a224 = labels[(z) * width * height + (y) * width + (x + 2)];
+                        int a233 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
+                        int a234 = labels[(z) * width * height + (y + 1) * width + (x + 2)];
 
-                        int a133 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
-                        int a143 = labels[(z + 1) * width * height + (y - 1) * width + (x + 2)];
-                        int a233 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
-                        int a243 = labels[(z + 1) * width * height + (y) * width + (x + 2)];
+                        int a313 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
+                        int a314 = labels[(z + 1) * width * height + (y - 1) * width + (x + 2)];
+                        int a323 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
+                        int a324 = labels[(z + 1) * width * height + (y) * width + (x + 2)];
                         int a333 = labels[(z + 1) * width * height + (y + 1) * width + (x + 1)];
-                        int a343 = labels[(z + 1) * width * height + (y + 1) * width + (x + 2)];
+                        int a334 = labels[(z + 1) * width * height + (y + 1) * width + (x + 2)];
                         if( 
                             checkSplit_3d(
-                                a131, a141, a231, a241, a331, a341, 
-                                a132, a142, a242, a232, a342, a342, // a232 is the anchor label.
-                                a133, a143, a233, a243, a333, a343
-                            ) 
+                                a134, a133, a124, a123, a114, a113,
+                                a234, a233, a224, a223, a214, a213,
+                                a334, a333, a324, a323, a314, a313
+                            ) // counterclockwise rotate pi along z 
                         )
                         {
                             if( seeds_prior )
                             {
-                                priorA = threebyfourbythree(x, y, z, labelA);
-                                priorB = threebyfourbythree(x, y, z, labelB);
+                                priorA = threebythreebyfour(x, y, z, labelA);
+                                priorB = threebythreebyfour(x, y, z, labelB);
                             }
 
                             if( probability(z * width * height + y * width + x + 1, labelB, labelA, priorB, priorA) )
@@ -958,30 +958,30 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                             else
                             {
                                 int a111 = labels[(z - 1) * width * height + (y - 1) * width + (x - 1)];
-                                int a121 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
-                                int a211 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
-                                int a221 = labels[(z - 1) * width * height + (y) * width + (x)];
-                                int a311 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
-                                int a321 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
+                                int a112 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
+                                int a121 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
+                                int a122 = labels[(z - 1) * width * height + (y) * width + (x)];
+                                int a131 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
+                                int a132 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
 
-                                int a112 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
-                                int a122 = labels[(z) * width * height + (y - 1) * width + (x)];
-                                int a212 = labels[(z) * width * height + (y) * width + (x - 1)];
+                                int a211 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
+                                int a212 = labels[(z) * width * height + (y - 1) * width + (x)];
+                                int a221 = labels[(z) * width * height + (y) * width + (x - 1)];
                                 // int a222 = labels[(z) * width * height + (y) * width + (x)];
-                                int a312 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
-                                int a322 = labels[(z) * width * height + (y + 1) * width + (x)];
+                                int a231 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
+                                int a232 = labels[(z) * width * height + (y + 1) * width + (x)];
 
-                                int a113 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
-                                int a123 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
-                                int a213 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
-                                int a223 = labels[(z + 1) * width * height + (y) * width + (x)];
-                                int a313 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
-                                int a323 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
+                                int a311 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
+                                int a312 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
+                                int a321 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
+                                int a322 = labels[(z + 1) * width * height + (y) * width + (x)];
+                                int a331 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
+                                int a332 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
                                 if( 
                                     checkSplit_3d(
-                                        a111, a121, a211, a221, a311, a321, 
-                                        a112, a122, a212, a222, a312, a322, // a222 is the anchor label
-                                        a113, a123, a213, a223, a313, a323 
+                                        a111, a112, a121, a122, a131, a132, 
+                                        a211, a212, a221, a222, a231, a232,
+                                        a311, a312, a321, a322, a331, a332 
                                     ) 
                                 )
                                 {
@@ -1005,48 +1005,48 @@ void SuperpixelSEEDS3DImpl::updatePixels()
             for (int y = 1; y < height - 2; y++)
             {
 
-                labelA = labels[(z) * width * height + (y) * width + (x)];
-                labelB = labels[(z) * width * height + (y + 1) * width + (x)];
+                labelA = labels[(z) * width * height + (y) * width + (x)]; // a222
+                labelB = labels[(z) * width * height + (y + 1) * width + (x)]; // a232
                 if( labelA != labelB )
                 {
                     int a222 = labelA;
-                    int a322 = labelB;
+                    int a232 = labelB;
 
                     if( forwardbackward )
                     {
                         // vertical bidirectional
                         int a111 = labels[(z - 1) * width * height + (y - 1) * width + (x - 1)];
-                        int a121 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
-                        int a131 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
-                        int a211 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
-                        int a221 = labels[(z - 1) * width * height + (y) * width + (x)];
-                        int a231 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
+                        int a112 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
+                        int a113 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
+                        int a121 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
+                        int a122 = labels[(z - 1) * width * height + (y) * width + (x)];
+                        int a123 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
 
-                        int a112 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
-                        int a122 = labels[(z) * width * height + (y - 1) * width + (x)];
-                        int a132 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
-                        int a212 = labels[(z) * width * height + (y) * width + (x - 1)];
+                        int a211 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
+                        int a212 = labels[(z) * width * height + (y - 1) * width + (x)];
+                        int a213 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
+                        int a221 = labels[(z) * width * height + (y) * width + (x - 1)];
                         // int a222 = labels[(z) * width * height + (y) * width + (x)];
-                        int a232 = labels[(z) * width * height + (y) * width + (x + 1)];
+                        int a223 = labels[(z) * width * height + (y) * width + (x + 1)];
 
-                        int a113 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
-                        int a123 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
-                        int a133 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
-                        int a213 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
-                        int a223 = labels[(z + 1) * width * height + (y) * width + (x)];
-                        int a233 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
+                        int a311 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
+                        int a312 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
+                        int a313 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
+                        int a321 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
+                        int a322 = labels[(z + 1) * width * height + (y) * width + (x)];
+                        int a323 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
                         if( 
                             checkSplit_3d(
-                                a111, a121, a131, a211, a221, a231, 
-                                a112, a122, a132, a222, a212, a232, // a222 is the anchor label.
-                                a113, a123, a133, a213, a223, a233 
-                            ) 
+                                a113, a123, a112, a122, a111, a121,
+                                a213, a223, a212, a222, a211, a221,
+                                a313, a323, a312, a322, a311, a321
+                            ) // counterclockwise rotate pi/2 along z
                         )
                         {
                             if( seeds_prior )
                             {
-                                priorA = fourbythreebythree(x, y, z, labelA);
-                                priorB = fourbythreebythree(x, y, z, labelB);
+                                priorA = threebyfourbythree(x, y, z, labelA);
+                                priorB = threebyfourbythree(x, y, z, labelB);
                             }
 
                             if( probability(z * width * height + y * width + x, labelA, labelB, priorA, priorB) )
@@ -1055,32 +1055,32 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                             }
                             else
                             {
-                                int a311 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
-                                int a321 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
-                                int a331 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
-                                int a411 = labels[(z - 1) * width * height + (y + 2) * width + (x - 1)];
-                                int a421 = labels[(z - 1) * width * height + (y + 2) * width + (x)];
-                                int a431 = labels[(z - 1) * width * height + (y + 2) * width + (x + 1)];
+                                int a131 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
+                                int a132 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
+                                int a133 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
+                                int a141 = labels[(z - 1) * width * height + (y + 2) * width + (x - 1)];
+                                int a142 = labels[(z - 1) * width * height + (y + 2) * width + (x)];
+                                int a143 = labels[(z - 1) * width * height + (y + 2) * width + (x + 1)];
 
-                                int a312 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
-                                // int a322 = labels[(z) * width * height + (y + 1) * width + (x)];
-                                int a332 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
-                                int a412 = labels[(z) * width * height + (y + 2) * width + (x - 1)];
-                                int a422 = labels[(z) * width * height + (y + 2) * width + (x)];
-                                int a432 = labels[(z) * width * height + (y + 2) * width + (x + 1)];
+                                int a231 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
+                                // int a232 = labels[(z) * width * height + (y + 1) * width + (x)];
+                                int a233 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
+                                int a241 = labels[(z) * width * height + (y + 2) * width + (x - 1)];
+                                int a242 = labels[(z) * width * height + (y + 2) * width + (x)];
+                                int a243 = labels[(z) * width * height + (y + 2) * width + (x + 1)];
 
-                                int a313 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
-                                int a323 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
+                                int a331 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
+                                int a332 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
                                 int a333 = labels[(z + 1) * width * height + (y + 1) * width + (x + 1)];
-                                int a413 = labels[(z + 1) * width * height + (y + 2) * width + (x - 1)];
-                                int a423 = labels[(z + 1) * width * height + (y + 2) * width + (x)];
-                                int a433 = labels[(z + 1) * width * height + (y + 2) * width + (x + 1)];
+                                int a341 = labels[(z + 1) * width * height + (y + 2) * width + (x - 1)];
+                                int a342 = labels[(z + 1) * width * height + (y + 2) * width + (x)];
+                                int a343 = labels[(z + 1) * width * height + (y + 2) * width + (x + 1)];
                                 if( 
                                     checkSplit_3d(
-                                        a311, a321, a331, a411, a421, a431, 
-                                        a312, a412, a332, a322, a422, a432, // a322 is the anchor label.
-                                        a313, a323, a333, a413, a423, a433
-                                    ) 
+                                        a141, a131, a142, a132, a143, a133,
+                                        a241, a231, a242, a232, a243, a233,
+                                        a341, a331, a342, a332, a343, a333
+                                    ) // clockwise rotate pi/2 along z
                                 )
                                 {
                                     if( probability(z * width * height + (y + 1) * width + x, labelB, labelA, priorB, priorA) )
@@ -1095,38 +1095,38 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                     else
                     { // forwardbackward
                         // vertical bidirectional
-                        int a311 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
-                        int a321 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
-                        int a331 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
-                        int a411 = labels[(z - 1) * width * height + (y + 2) * width + (x - 1)];
-                        int a421 = labels[(z - 1) * width * height + (y + 2) * width + (x)];
-                        int a431 = labels[(z - 1) * width * height + (y + 2) * width + (x + 1)];
+                        int a131 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
+                        int a132 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
+                        int a133 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
+                        int a141 = labels[(z - 1) * width * height + (y + 2) * width + (x - 1)];
+                        int a142 = labels[(z - 1) * width * height + (y + 2) * width + (x)];
+                        int a143 = labels[(z - 1) * width * height + (y + 2) * width + (x + 1)];
 
-                        int a312 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
-                        // int a322 = labels[(z) * width * height + (y + 1) * width + (x)];
-                        int a332 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
-                        int a412 = labels[(z) * width * height + (y + 2) * width + (x - 1)];
-                        int a422 = labels[(z) * width * height + (y + 2) * width + (x)];
-                        int a432 = labels[(z) * width * height + (y + 2) * width + (x + 1)];
+                        int a231 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
+                        // int a232 = labels[(z) * width * height + (y + 1) * width + (x)];
+                        int a233 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
+                        int a241 = labels[(z) * width * height + (y + 2) * width + (x - 1)];
+                        int a242 = labels[(z) * width * height + (y + 2) * width + (x)];
+                        int a243 = labels[(z) * width * height + (y + 2) * width + (x + 1)];
 
-                        int a313 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
-                        int a323 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
+                        int a331 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
+                        int a332 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
                         int a333 = labels[(z + 1) * width * height + (y + 1) * width + (x + 1)];
-                        int a413 = labels[(z + 1) * width * height + (y + 2) * width + (x - 1)];
-                        int a423 = labels[(z + 1) * width * height + (y + 2) * width + (x)];
-                        int a433 = labels[(z + 1) * width * height + (y + 2) * width + (x + 1)];
+                        int a341 = labels[(z + 1) * width * height + (y + 2) * width + (x - 1)];
+                        int a342 = labels[(z + 1) * width * height + (y + 2) * width + (x)];
+                        int a343 = labels[(z + 1) * width * height + (y + 2) * width + (x + 1)];
                         if( 
                             checkSplit_3d(
-                                a311, a321, a331, a411, a421, a431, 
-                                a312, a412, a332, a322, a422, a432, // a322 is the anchor label.
-                                a313, a323, a333, a413, a423, a433
-                            ) 
+                                a141, a131, a142, a132, a143, a133,
+                                a241, a231, a242, a232, a243, a233,
+                                a341, a331, a342, a332, a343, a333
+                            ) // clockwise rotate pi/2 along z
                         )
                         {
                             if( seeds_prior )
                             {
-                                priorA = fourbythreebythree(x, y, z, labelA);
-                                priorB = fourbythreebythree(x, y, z, labelB);
+                                priorA = threebyfourbythree(x, y, z, labelA);
+                                priorB = threebyfourbythree(x, y, z, labelB);
                             }
 
                             if( probability(z * width * height + (y + 1) * width + x, labelB, labelA, priorB, priorA) )
@@ -1137,31 +1137,31 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                             else
                             {
                                 int a111 = labels[(z - 1) * width * height + (y - 1) * width + (x - 1)];
-                                int a121 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
-                                int a131 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
-                                int a211 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
-                                int a221 = labels[(z - 1) * width * height + (y) * width + (x)];
-                                int a231 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
+                                int a112 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
+                                int a113 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
+                                int a121 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
+                                int a122 = labels[(z - 1) * width * height + (y) * width + (x)];
+                                int a123 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
 
-                                int a112 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
-                                int a122 = labels[(z) * width * height + (y - 1) * width + (x)];
-                                int a132 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
-                                int a212 = labels[(z) * width * height + (y) * width + (x - 1)];
+                                int a211 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
+                                int a212 = labels[(z) * width * height + (y - 1) * width + (x)];
+                                int a213 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
+                                int a221 = labels[(z) * width * height + (y) * width + (x - 1)];
                                 // int a222 = labels[(z) * width * height + (y) * width + (x)];
-                                int a232 = labels[(z) * width * height + (y) * width + (x + 1)];
+                                int a223 = labels[(z) * width * height + (y) * width + (x + 1)];
 
-                                int a113 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
-                                int a123 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
-                                int a133 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
-                                int a213 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
-                                int a223 = labels[(z + 1) * width * height + (y) * width + (x)];
-                                int a233 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
+                                int a311 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
+                                int a312 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
+                                int a313 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
+                                int a321 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
+                                int a322 = labels[(z + 1) * width * height + (y) * width + (x)];
+                                int a323 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
                                 if( 
                                     checkSplit_3d(
-                                        a111, a121, a131, a211, a221, a231, 
-                                        a112, a122, a132, a222, a212, a232, // a222 is the anchor label.
-                                        a113, a123, a133, a213, a223, a233 
-                                    ) 
+                                        a113, a123, a112, a122, a111, a121,
+                                        a213, a223, a212, a222, a211, a221,
+                                        a313, a323, a312, a322, a311, a321
+                                    ) // counterclockwise rotate pi/2 along z 
                                 )
                                 {
                                     if( probability(z * width * height + y * width + x, labelA, labelB, priorA, priorB) )
@@ -1184,47 +1184,47 @@ void SuperpixelSEEDS3DImpl::updatePixels()
             for (int z = 1; z < depth - 2; z++)
             {
 
-                labelA = labels[(z) * width * height + (y) * width + (x)];
-                labelB = labels[(z + 1) * width * height + (y) * width + (x)];
+                labelA = labels[(z) * width * height + (y) * width + (x)]; // a222
+                labelB = labels[(z + 1) * width * height + (y) * width + (x)]; // a322
                 if( labelA != labelB )
                 {
                     int a222 = labelA;
-                    int a223 = labelB;
+                    int a322 = labelB;
 
                     if( forwardbackward )
                     {
                         // depth bidirectional
                         int a111 = labels[(z - 1) * width * height + (y - 1) * width + (x - 1)];
-                        int a121 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
-                        int a131 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
-                        int a211 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
-                        int a221 = labels[(z - 1) * width * height + (y) * width + (x)];
-                        int a231 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
-                        int a311 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
-                        int a321 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
-                        int a331 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
+                        int a112 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
+                        int a113 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
+                        int a121 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
+                        int a122 = labels[(z - 1) * width * height + (y) * width + (x)];
+                        int a123 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
+                        int a131 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
+                        int a132 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
+                        int a133 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
 
-                        int a112 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
-                        int a122 = labels[(z) * width * height + (y - 1) * width + (x)];
-                        int a132 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
-                        int a212 = labels[(z) * width * height + (y) * width + (x - 1)];
+                        int a211 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
+                        int a212 = labels[(z) * width * height + (y - 1) * width + (x)];
+                        int a213 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
+                        int a221 = labels[(z) * width * height + (y) * width + (x - 1)];
                         // int a222 = labels[(z) * width * height + (y) * width + (x)];
-                        int a232 = labels[(z) * width * height + (y) * width + (x + 1)];
-                        int a312 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
-                        int a322 = labels[(z) * width * height + (y + 1) * width + (x)];
-                        int a332 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
+                        int a223 = labels[(z) * width * height + (y) * width + (x + 1)];
+                        int a231 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
+                        int a232 = labels[(z) * width * height + (y + 1) * width + (x)];
+                        int a233 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
                         if( 
                             checkSplit_3d(
-                                a111, a121, a131, a211, a221, a231, 
-                                a311, a321, a331, a222, a122, a132, // a222 is the anchor label.
-                                a212, a112, a232, a312, a322, a332 
-                            ) 
+                                a113, a213, a123, a223, a133, a233,
+                                a112, a212, a122, a222, a132, a232,
+                                a111, a211, a121, a221, a131, a231
+                            ) // conterclockwise rotate pi/2 along y
                         )
                         {
                             if( seeds_prior )
                             {
-                                priorA = threebythreebyfour(x, y, z, labelA);
-                                priorB = threebythreebyfour(x, y, z, labelB);
+                                priorA = fourbythreebythree(x, y, z, labelA);
+                                priorB = fourbythreebythree(x, y, z, labelB);
                             }
 
                             if( probability(z * width * height + y * width + x, labelA, labelB, priorA, priorB) )
@@ -1233,31 +1233,31 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                             }
                             else
                             {
-                                int a113 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
-                                int a123 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
-                                int a133 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
-                                int a213 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
-                                // int a223 = labels[(z + 1) * width * height + (y) * width + (x)];
-                                int a233 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
-                                int a313 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
-                                int a323 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
+                                int a311 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
+                                int a312 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
+                                int a313 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
+                                int a321 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
+                                // int a322 = labels[(z + 1) * width * height + (y) * width + (x)];
+                                int a323 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
+                                int a331 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
+                                int a332 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
                                 int a333 = labels[(z + 1) * width * height + (y + 1) * width + (x + 1)];
 
-                                int a114 = labels[(z + 2) * width * height + (y - 1) * width + (x - 1)];
-                                int a124 = labels[(z + 2) * width * height + (y - 1) * width + (x)];
-                                int a134 = labels[(z + 2) * width * height + (y - 1) * width + (x + 1)];
-                                int a214 = labels[(z + 2) * width * height + (y) * width + (x - 1)];
-                                int a224 = labels[(z + 2) * width * height + (y) * width + (x)];
-                                int a234 = labels[(z + 2) * width * height + (y) * width + (x + 1)];
-                                int a314 = labels[(z + 2) * width * height + (y + 1) * width + (x - 1)];
-                                int a324 = labels[(z + 2) * width * height + (y + 1) * width + (x)];
-                                int a334 = labels[(z + 2) * width * height + (y + 1) * width + (x + 1)];
+                                int a411 = labels[(z + 2) * width * height + (y - 1) * width + (x - 1)];
+                                int a412 = labels[(z + 2) * width * height + (y - 1) * width + (x)];
+                                int a413 = labels[(z + 2) * width * height + (y - 1) * width + (x + 1)];
+                                int a421 = labels[(z + 2) * width * height + (y) * width + (x - 1)];
+                                int a422 = labels[(z + 2) * width * height + (y) * width + (x)];
+                                int a423 = labels[(z + 2) * width * height + (y) * width + (x + 1)];
+                                int a431 = labels[(z + 2) * width * height + (y + 1) * width + (x - 1)];
+                                int a432 = labels[(z + 2) * width * height + (y + 1) * width + (x)];
+                                int a433 = labels[(z + 2) * width * height + (y + 1) * width + (x + 1)];
                                 if( 
                                     checkSplit_3d(
-                                        a113, a123, a133, a213, a114, a233, 
-                                        a313, a323, a333, a223, a124, a134, // a223 is the anchor label.
-                                        a214, a224, a234, a314, a324, a334 
-                                    ) 
+                                        a411, a311, a421, a321, a431, a331, 
+                                        a412, a312, a422, a322, a432, a332, 
+                                        a413, a313, a423, a323, a433, a333 
+                                    ) // clockwise rotate pi/2 along y 
                                 )
                                 {
                                     if( probability((z + 1) * width * height + (y) * width + x, labelB, labelA, priorB, priorA) )
@@ -1272,37 +1272,37 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                     else
                     { // forwardbackward
                         // depth bidirectional
-                        int a113 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
-                        int a123 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
-                        int a133 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
-                        int a213 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
-                        // int a223 = labels[(z + 1) * width * height + (y) * width + (x)];
-                        int a233 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
-                        int a313 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
-                        int a323 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
+                        int a311 = labels[(z + 1) * width * height + (y - 1) * width + (x - 1)];
+                        int a312 = labels[(z + 1) * width * height + (y - 1) * width + (x)];
+                        int a313 = labels[(z + 1) * width * height + (y - 1) * width + (x + 1)];
+                        int a321 = labels[(z + 1) * width * height + (y) * width + (x - 1)];
+                        // int a322 = labels[(z + 1) * width * height + (y) * width + (x)];
+                        int a323 = labels[(z + 1) * width * height + (y) * width + (x + 1)];
+                        int a331 = labels[(z + 1) * width * height + (y + 1) * width + (x - 1)];
+                        int a332 = labels[(z + 1) * width * height + (y + 1) * width + (x)];
                         int a333 = labels[(z + 1) * width * height + (y + 1) * width + (x + 1)];
 
-                        int a114 = labels[(z + 2) * width * height + (y - 1) * width + (x - 1)];
-                        int a124 = labels[(z + 2) * width * height + (y - 1) * width + (x)];
-                        int a134 = labels[(z + 2) * width * height + (y - 1) * width + (x + 1)];
-                        int a214 = labels[(z + 2) * width * height + (y) * width + (x - 1)];
-                        int a224 = labels[(z + 2) * width * height + (y) * width + (x)];
-                        int a234 = labels[(z + 2) * width * height + (y) * width + (x + 1)];
-                        int a314 = labels[(z + 2) * width * height + (y + 1) * width + (x - 1)];
-                        int a324 = labels[(z + 2) * width * height + (y + 1) * width + (x)];
-                        int a334 = labels[(z + 2) * width * height + (y + 1) * width + (x + 1)];
+                        int a411 = labels[(z + 2) * width * height + (y - 1) * width + (x - 1)];
+                        int a412 = labels[(z + 2) * width * height + (y - 1) * width + (x)];
+                        int a413 = labels[(z + 2) * width * height + (y - 1) * width + (x + 1)];
+                        int a421 = labels[(z + 2) * width * height + (y) * width + (x - 1)];
+                        int a422 = labels[(z + 2) * width * height + (y) * width + (x)];
+                        int a423 = labels[(z + 2) * width * height + (y) * width + (x + 1)];
+                        int a431 = labels[(z + 2) * width * height + (y + 1) * width + (x - 1)];
+                        int a432 = labels[(z + 2) * width * height + (y + 1) * width + (x)];
+                        int a433 = labels[(z + 2) * width * height + (y + 1) * width + (x + 1)];
                         if( 
                             checkSplit_3d(
-                                a113, a123, a133, a213, a114, a233, 
-                                a313, a323, a333, a223, a124, a134, // a223 is the anchor label.
-                                a214, a224, a234, a314, a324, a334 
-                            ) 
+                                a411, a311, a421, a321, a431, a331, 
+                                a412, a312, a422, a322, a432, a332, 
+                                a413, a313, a423, a323, a433, a333 
+                            ) // clockwise rotate pi/2 along y 
                         )
                         {
                             if( seeds_prior )
                             {
-                                priorA = threebythreebyfour(x, y, z, labelA);
-                                priorB = threebythreebyfour(x, y, z, labelB);
+                                priorA = fourbythreebythree(x, y, z, labelA);
+                                priorB = fourbythreebythree(x, y, z, labelB);
                             }
 
                             if( probability((z + 1) * width * height + (y) * width + x, labelB, labelA, priorB, priorA) )
@@ -1313,30 +1313,30 @@ void SuperpixelSEEDS3DImpl::updatePixels()
                             else
                             {
                                 int a111 = labels[(z - 1) * width * height + (y - 1) * width + (x - 1)];
-                                int a121 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
-                                int a131 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
-                                int a211 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
-                                int a221 = labels[(z - 1) * width * height + (y) * width + (x)];
-                                int a231 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
-                                int a311 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
-                                int a321 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
-                                int a331 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
+                                int a112 = labels[(z - 1) * width * height + (y - 1) * width + (x)];
+                                int a113 = labels[(z - 1) * width * height + (y - 1) * width + (x + 1)];
+                                int a121 = labels[(z - 1) * width * height + (y) * width + (x - 1)];
+                                int a122 = labels[(z - 1) * width * height + (y) * width + (x)];
+                                int a123 = labels[(z - 1) * width * height + (y) * width + (x + 1)];
+                                int a131 = labels[(z - 1) * width * height + (y + 1) * width + (x - 1)];
+                                int a132 = labels[(z - 1) * width * height + (y + 1) * width + (x)];
+                                int a133 = labels[(z - 1) * width * height + (y + 1) * width + (x + 1)];
 
-                                int a112 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
-                                int a122 = labels[(z) * width * height + (y - 1) * width + (x)];
-                                int a132 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
-                                int a212 = labels[(z) * width * height + (y) * width + (x - 1)];
+                                int a211 = labels[(z) * width * height + (y - 1) * width + (x - 1)];
+                                int a212 = labels[(z) * width * height + (y - 1) * width + (x)];
+                                int a213 = labels[(z) * width * height + (y - 1) * width + (x + 1)];
+                                int a221 = labels[(z) * width * height + (y) * width + (x - 1)];
                                 // int a222 = labels[(z) * width * height + (y) * width + (x)];
-                                int a232 = labels[(z) * width * height + (y) * width + (x + 1)];
-                                int a312 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
-                                int a322 = labels[(z) * width * height + (y + 1) * width + (x)];
-                                int a332 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
+                                int a223 = labels[(z) * width * height + (y) * width + (x + 1)];
+                                int a231 = labels[(z) * width * height + (y + 1) * width + (x - 1)];
+                                int a232 = labels[(z) * width * height + (y + 1) * width + (x)];
+                                int a233 = labels[(z) * width * height + (y + 1) * width + (x + 1)];
                                 if( 
                                     checkSplit_3d(
-                                        a111, a121, a131, a211, a221, a231, 
-                                        a311, a321, a331, a222, a122, a132, // a222 is the anchor label.
-                                        a212, a112, a232, a312, a322, a332 
-                                    ) 
+                                        a113, a213, a123, a223, a133, a233,
+                                        a112, a212, a122, a222, a132, a232,
+                                        a111, a211, a121, a221, a131, a231
+                                    ) // conterclockwise rotate pi/2 along y 
                                 )
                                 {
                                     if( probability(z * width * height + y * width + x, labelA, labelB, priorA, priorB) )
@@ -1482,7 +1482,7 @@ void SuperpixelSEEDS3DImpl::deleteBlockToplevel(int label, int sublevel, int sub
 
 void SuperpixelSEEDS3DImpl::updateLabels()
 {
-    for (int i = 0; i < width * height; ++i)
+    for (int i = 0; i < width * height * depth; ++i)
         labels[i] = parent[0][labels_bottom[i]];
 }
 
@@ -1524,7 +1524,7 @@ bool SuperpixelSEEDS3DImpl::probability(int image_idx, int label1, int label2,
     return (P_label2 > P_label1);
 }
 
-int SuperpixelSEEDS3DImpl::threebyfourbythree(int x, int y, int z, int label)
+int SuperpixelSEEDS3DImpl::threebythreebyfour(int x, int y, int z, int label)
 {
     /* count how many pixels in a neighborhood of (x,y) have the label 'label'.
      * neighborhood (x=counted, o,O=ignored, O=(x,y)):
@@ -1608,7 +1608,7 @@ int SuperpixelSEEDS3DImpl::threebyfourbythree(int x, int y, int z, int label)
 #endif
 }
 
-int SuperpixelSEEDS3DImpl::fourbythreebythree(int x, int y, int z, int label)
+int SuperpixelSEEDS3DImpl::threebyfourbythree(int x, int y, int z, int label)
 {
     /* count how many pixels in a neighborhood of (x,y) have the label 'label'.
      * neighborhood (x=counted, o,O=ignored, O=(x,y)):
@@ -1696,7 +1696,7 @@ int SuperpixelSEEDS3DImpl::fourbythreebythree(int x, int y, int z, int label)
 #endif
 }
 
-int SuperpixelSEEDS3DImpl::threebythreebyfour(int x, int y, int z, int label)
+int SuperpixelSEEDS3DImpl::fourbythreebythree(int x, int y, int z, int label)
 {
     /* count how many pixels in a neighborhood of (x,y) have the label 'label'.
      * neighborhood (x=counted, o,O=ignored, O=(x,y)):
@@ -1983,32 +1983,32 @@ float SuperpixelSEEDS3DImpl::intersectConf(int level1, int label1A, int label1B,
 }
 
 bool SuperpixelSEEDS3DImpl::checkSplit_3d(
-    int a111, int a121, int a211, int a221, int a311, int a321,
-    int a112, int a122, int a212, int a222, int a312, int a322,
-    int a113, int a123, int a213, int a223, int a313, int a323)
+    int a111, int a112, int a121, int a122, int a131, int a132,
+    int a211, int a212, int a221, int a222, int a231, int a232,
+    int a311, int a312, int a321, int a322, int a331, int a332)
 {   
     // 1
-    if( (a111 == a222) && (a121 != a222) && (a211 != a222) && (a112 != a222) ) return false;
-    if( (a121 == a222) && (a111 != a222) && (a221 != a222) && (a122 != a222) ) return false;
-    if( (a211 == a222) && (a111 != a222) && (a221 != a222) && (a311 != a222) && (a212 != a222) ) return false;
-    if( (a221 == a222) && (a121 != a222) && (a211 != a222) && (a321 != a222) ) return false;
-    if( (a311 == a222) && (a211 != a222) && (a321 != a222) && (a312 != a222) ) return false;
-    if( (a321 == a222) && (a221 != a222) && (a311 != a222) && (a322 != a222) ) return false;
+    if( (a111 == a222) && (a112 != a222) && (a121 != a222) && (a211 != a222) ) return false;
+    if( (a112 == a222) && (a111 != a222) && (a122 != a222) && (a212 != a222) ) return false;
+    if( (a121 == a222) && (a111 != a222) && (a122 != a222) && (a131 != a222) && (a221 != a222) ) return false;
+    if( (a122 == a222) && (a112 != a222) && (a121 != a222) && (a132 != a222) ) return false;
+    if( (a131 == a222) && (a121 != a222) && (a132 != a222) && (a231 != a222) ) return false;
+    if( (a132 == a222) && (a122 != a222) && (a131 != a222) && (a232 != a222) ) return false;
 
     // 3
-    if( (a113 == a222) && (a123 != a222) && (a213 != a222) && (a112 != a222) ) return false;
-    if( (a123 == a222) && (a113 != a222) && (a223 != a222) && (a122 != a222) ) return false;
-    if( (a213 == a222) && (a113 != a222) && (a223 != a222) && (a313 != a222) && (a212 != a222) ) return false;
-    if( (a223 == a222) && (a123 != a222) && (a213 != a222) && (a323 != a222) ) return false;
-    if( (a313 == a222) && (a213 != a222) && (a323 != a222) && (a312 != a222) ) return false;
-    if( (a323 == a222) && (a223 != a222) && (a313 != a222) && (a322 != a222) ) return false;
+    if( (a311 == a222) && (a312 != a222) && (a321 != a222) && (a211 != a222) ) return false;
+    if( (a312 == a222) && (a311 != a222) && (a322 != a222) && (a212 != a222) ) return false;
+    if( (a321 == a222) && (a311 != a222) && (a322 != a222) && (a331 != a222) && (a221 != a222) ) return false;
+    if( (a322 == a222) && (a312 != a222) && (a321 != a222) && (a332 != a222) ) return false;
+    if( (a331 == a222) && (a321 != a222) && (a332 != a222) && (a231 != a222) ) return false;
+    if( (a332 == a222) && (a322 != a222) && (a331 != a222) && (a232 != a222) ) return false;
 
     // 2
-    if( (a112 == a222) && (a111 != a222) && (a113 != a222) && (a122 != a222) && (a212 != a222) ) return false;
-    if( (a122 == a222) && (a121 != a222) && (a123 != a222) && (a112 != a222) ) return false;
-    if( (a212 == a222) && (a211 != a222) && (a213 != a222) && (a112 != a222) && (a312 != a222) ) return false;
-    if( (a312 == a222) && (a311 != a222) && (a313 != a222) && (a322 != a222) && (a212 != a222) ) return false;
-    if( (a322 == a222) && (a321 != a222) && (a323 != a222) && (a312 != a222) ) return false;
+    if( (a211 == a222) && (a111 != a222) && (a311 != a222) && (a212 != a222) && (a221 != a222) ) return false;
+    if( (a212 == a222) && (a112 != a222) && (a312 != a222) && (a211 != a222) ) return false;
+    if( (a221 == a222) && (a121 != a222) && (a321 != a222) && (a211 != a222) && (a231 != a222) ) return false;
+    if( (a231 == a222) && (a131 != a222) && (a331 != a222) && (a232 != a222) && (a221 != a222) ) return false;
+    if( (a232 == a222) && (a132 != a222) && (a332 != a222) && (a231 != a222) ) return false;
 
     return true;
 }

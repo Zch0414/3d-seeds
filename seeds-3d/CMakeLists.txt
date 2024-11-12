@@ -4,7 +4,7 @@ set(OpenCV_DIR /Users/Zach/Zch/Research/seeds-3d/seeds-3d/install/lib/cmake/open
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
 find_package( OpenCV REQUIRED )
-find_package(Boost 1.70 REQUIRED COMPONENTS program_options)
+# find_package(Boost 1.70 REQUIRED COMPONENTS program_options)
 include_directories(${OpenCV_INCLUDE_DIRS})
 # add_executable(seeds3d_demo seeds3d_sample.cpp seeds3d.cpp)
 add_executable(seeds3d_demo seeds3d_sample_zch.cpp seeds3d_zch.cpp)
