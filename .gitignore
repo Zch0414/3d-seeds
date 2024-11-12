@@ -7,4 +7,3 @@ nifti_to_array.py
 BraTS-GLI-00000-000-t1c.nii.gz
 .* 
 ! .gitignore
-seeds-3d/CMakeLists.txt

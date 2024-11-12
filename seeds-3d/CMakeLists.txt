@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(seeds3d_demo)
-set(OpenCV_DIR /Users/jiangyan/Desktop/seeds-3d-master/install/lib/cmake/opencv4)
+set(OpenCV_DIR /Users/Zach/Zch/Research/seeds-3d/seeds-3d/install/lib/cmake/opencv4)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
 find_package( OpenCV REQUIRED )
