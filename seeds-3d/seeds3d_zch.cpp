@@ -11,6 +11,7 @@ using namespace std;
 //required confidence when double_step is used
 #define REQ_CONF 0.1f
 #define MINIMUM_NR_SUBLABELS 1
+#define CV_MALLOC_ALIGN 16
 
 
 // the type of the histogram and the T array
@@ -302,7 +303,7 @@ void SuperpixelSEEDS3DImpl::initImageBins(const Mat& img, int max_value)
     int img_depth = img.size[2];
     int channels = img.channels();
 
-    for (int z = 0; z < img_depth, ++z)
+    for (int z = 0; z < img_depth; ++z)
     {        
         for (int y = 0; y < img_height; ++y)
         {
@@ -377,7 +378,7 @@ void SuperpixelSEEDS3DImpl::initImage(InputArray img)
     assignLabels();
 
     CV_Assert(src.size().width == width && src.size().height == height);
-    CV_Assert(_depth == CV_8U || _depth == CV_16U || _depth == CV_32F);
+    // CV_Assert(_depth == CV_8U || _depth == CV_16U || _depth == CV_32F);
     CV_Assert(src.channels() == nr_channels);
 
     // initialize the histogram bins from the image
