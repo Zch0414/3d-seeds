@@ -51,30 +51,35 @@ int main()
     file.close();
     
     Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
-    std::cout << "Value at (24, 96, 96): " << img_data.at<float>(24, 96, 96) << std::endl;
+    // std::cout << "Value at (24, 96, 96): " << img_data.at<float>(24, 96, 96) << std::endl;
     
     double t = (double)getTickCount();
     Ptr<SuperpixelSEEDS3D> seeds;
-    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 432, 2, 2, 5);
-    seeds->iterate(img_data, 4);
+    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 432, 2, 2, 15);
+    seeds->iterate(img_data, 20);
     t = ((double)getTickCount() - t) / getTickFrequency();
     printf("SEEDS segmentation took %i ms with %3i superpixels\n",
             (int) (t * 1000), seeds->getNumberOfSuperpixels());
     
     Mat labels;
-    const int num_label_bits = 2;
     seeds->getLabels(labels);
-    labels &= (1 << num_label_bits) - 1;
-    labels *= 1 << (16 - num_label_bits);
-    std::cout << labels.size[0] << std::endl;
-    std::cout << labels.size[1] << std::endl;
-    std::cout << labels.size[2] << std::endl;
+
+    // int* labels_data = (int*)labels.data;
+    // for (int i=0; i<192*192*48; i++)
+    // {
+    //     cout<<labels_data[i];
+    //     if (i%20==0) cout<<endl;
+    // }
     
-    int* labels_data = (int*)labels.data;
-    for (int i=0; i<192*192*48; i++)
-    {
-        cout<<labels_data[i];
-        if (i%20==0) cout<<endl;
+    std::ofstream out_file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/seeds-3d/result.bin", std::ios::out | std::ios::binary);
+    if (!out_file) {
+        std::cerr << "Error opening file for writing!" << std::endl;
+        return -1;
     }
 
+    // Write the data directly from the Mat object
+    out_file.write(reinterpret_cast<char*>((int*)labels.data), labels.total() * labels.elemSize());
+    out_file.close();
+
+    std::cout << "3D Mat data saved successfully!" << std::endl;
 }
