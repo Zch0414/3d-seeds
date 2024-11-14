@@ -53,10 +53,10 @@ int main()
     Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
     // std::cout << "Value at (24, 96, 96): " << img_data.at<float>(24, 96, 96) << std::endl;
     
-    double t = (double)getTickCount();
     Ptr<SuperpixelSEEDS3D> seeds;
-    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 432, 2, 2, 15);
-    seeds->iterate(img_data, 20);
+    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 864, 2, 2, 15);
+    double t = (double)getTickCount();
+    seeds->iterate(img_data, 4);
     t = ((double)getTickCount() - t) / getTickFrequency();
     printf("SEEDS segmentation took %i ms with %3i superpixels\n",
             (int) (t * 1000), seeds->getNumberOfSuperpixels());

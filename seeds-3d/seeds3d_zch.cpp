@@ -309,7 +309,7 @@ void SuperpixelSEEDS3DImpl::initImageBins(const Mat& img, int max_value)
         {
             for (int x = 0; x < img_width; ++x)
             {
-                const _Tp* ptr = img.ptr<_Tp>(y, x, z);
+                const _Tp* ptr = img.ptr<_Tp>(z, y, x);
                 int bin = 0;
                 for (int i = 0; i < channels; ++i)
                     bin = bin * nr_bins + (int) ptr[i] * nr_bins / max_value;
@@ -334,7 +334,7 @@ void SuperpixelSEEDS3DImpl::initImageBins<float>(const Mat& img, int)
         {
             for (int x = 0; x < img_width; ++x)
             {
-                const float* ptr = img.ptr<float>(y, x);
+                const float* ptr = img.ptr<float>(z, y, x);
                 int bin = 0;
                 for(int i=0; i<channels; ++i)
                     bin = bin * nr_bins + std::min((int)(ptr[i] * (float)nr_bins), nr_bins-1);
