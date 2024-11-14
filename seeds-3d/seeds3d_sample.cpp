@@ -1,86 +1,85 @@
+
 #include "seeds3d.hpp"
-// #include <boost/program_options.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/core/utility.hpp>
+
+#include <opencv2/ximgproc.hpp>
+
+#include <ctype.h>
+#include <stdio.h>
+#include <random>
+#include <iostream>
+#include <fstream>
+
 using namespace cv;
-// namespace po = boost::program_options;
+using namespace cv::ximgproc;
+using namespace std;
 
-int main(int argc, char *argv[])
+int main()
 {
+    int depth = 48;
+    int height = 192;
+    int width = 192;
 
-    /*
-        测试文件
-        三维图像数值随机 0.0f - 1.0f
-        -d 三维图像维度
-        -h 箱数量
-        -p prior
-        -i 迭代次数
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
+    // std::uniform_int_distribution<> dis(INT_MIN, INT_MAX);
 
-    */
-
-    vector<int> dim = {192, 192, 48};
-    int num_histogram = 10, seeds_prior = 5, num_interations = 2;
-
-    // try
-    // {
-    //     po::options_description desc(
-    //     " seeds 3d 
-    //     测试文件
-    //     三维图像数值随机 0.0f - 1.0f
-    //     -d 三维图像维度
-    //     -h 箱数量
-    //     -p prior
-    //     -i 迭代次数     "
-
-    //      );
-
-    //     desc.add_options()
-    //     ("help", "produce help message")
-    //     ("d", po::value<std::vector<int>>(&dim)->default_value({192, 192, 48}), "set the dim value")
-    //     ("-h", po::value<int>(&num_histogram)->default_value(10), "set the num_histogram value")
-    //     ("-p", po::value<int>(&seeds_prior)->default_value(5), "set the seeds_prior value")
-    //     ("-i", po::value<int>(&num_interations)->default_value(2), "set the num_interations value");
-
-    //     po::variables_map vm;
-    //     po::store(po::parse_command_line(argc, argv, desc), vm);
-    //     po::notify(vm);
-
-    //     if (vm.count("help"))
-    //     {
-    //         std::cout << desc << std::endl;
-    //         return 0;
+    // for (int i = 0; i < height; i++) {
+    //     for (int j = 0; j < width; j++) {
+    //         for (int k = 0; k < depth; k++) {
+    //             img_data.at<int>(i, j, k) = dis(gen)%255;  
+    //         }
     //     }
-
-    // }
-    // catch (const po::error &e)
-    // {
-    //     std::cerr << "Error parsing options: " << e.what() << std::endl;
-    //     return 1;
     // }
 
-    int dim_a = dim[0];
-    int dim_b = dim[1];
-    int dim_c = dim[2];
-    seeds3d a(dim_a, dim_b, dim_c, 100, 10, 5);
+    std::ifstream file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/seeds-3d/array_3d.bin", std::ios::binary);
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
-
-    std::vector<std::vector<std::vector<float>>> vec(dim_a,
-                                                     std::vector<std::vector<float>>(dim_b,
-                                                                                     std::vector<float>(dim_c)));
-
-    for (int i = 0; i < dim_a; ++i)
-    {
-        for (int j = 0; j < dim_b; ++j)
-        {
-            for (int k = 0; k < dim_c; ++k)
-            {
-                vec[i][j][k] = dis(gen);
-            }
-        }
+    // Check if the file opened successfully
+    if (!file.is_open()) {
+        std::cerr << "Error opening file!" << std::endl;
+        return -1;
     }
 
-    a.seeds3d_func(vec, num_interations);
+    // Create a 1D vector to hold the data
+    std::vector<float> data(depth * height * width);
 
+    // Read the binary data into the vector
+    file.read(reinterpret_cast<char*>(data.data()), depth * height * width * sizeof(float));
+    file.close();
+    
+    Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
+    // std::cout << "Value at (24, 96, 96): " << img_data.at<float>(24, 96, 96) << std::endl;
+    
+    Ptr<SuperpixelSEEDS3D> seeds;
+    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 864, 2, 2, 15);
+    double t = (double)getTickCount();
+    seeds->iterate(img_data, 4);
+    t = ((double)getTickCount() - t) / getTickFrequency();
+    printf("SEEDS segmentation took %i ms with %3i superpixels\n",
+            (int) (t * 1000), seeds->getNumberOfSuperpixels());
+    
+    Mat labels;
+    seeds->getLabels(labels);
 
+    // int* labels_data = (int*)labels.data;
+    // for (int i=0; i<192*192*48; i++)
+    // {
+    //     cout<<labels_data[i];
+    //     if (i%20==0) cout<<endl;
+    // }
+    
+    std::ofstream out_file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/seeds-3d/result.bin", std::ios::out | std::ios::binary);
+    if (!out_file) {
+        std::cerr << "Error opening file for writing!" << std::endl;
+        return -1;
+    }
+
+    // Write the data directly from the Mat object
+    out_file.write(reinterpret_cast<char*>((int*)labels.data), labels.total() * labels.elemSize());
+    out_file.close();
+
+    std::cout << "3D Mat data saved successfully!" << std::endl;
 }
