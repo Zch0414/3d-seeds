@@ -51,12 +51,12 @@ Try SEEDS demo (C++) with the following command:
 
 Prepare input with the following command:
 ```
+> cd seeds-3d
 > python nifti_to_array.py
 ```
 
 Run SEEDS3D with the following command:
 ```
-> cd seeds-3d
 > [manually modify] CMakeLists.txt:#3:/your/path/to/install_opencv/lib/cmake/opencv4
 > mkdir build && cd build
 > cmake ..
