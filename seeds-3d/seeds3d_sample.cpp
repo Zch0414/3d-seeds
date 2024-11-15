@@ -54,9 +54,9 @@ int main()
     // std::cout << "Value at (24, 96, 96): " << img_data.at<float>(24, 96, 96) << std::endl;
     
     Ptr<SuperpixelSEEDS3D> seeds;
-    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 432, 2, 2, 15);
+    seeds = createSuperpixelSEEDS3D(192, 192, 48, 1, 432, 4, 4, 5);
     double t = (double)getTickCount();
-    seeds->iterate(img_data, 10);
+    seeds->iterate(img_data, 4);
     t = ((double)getTickCount() - t) / getTickFrequency();
     printf("SEEDS segmentation took %i ms with %3i superpixels\n",
             (int) (t * 1000), seeds->getNumberOfSuperpixels());
