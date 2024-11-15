@@ -1,9 +1,10 @@
-build_opencv/
+# for the first version user.
 install/
+build_opencv/
 opencv/
 opencv_contrib/
+
+# for the second version user.
 **/build/
-nifti_to_array.py
-BraTS-GLI-00000-000-t1c.nii.gz
 .* 
 ! .gitignore

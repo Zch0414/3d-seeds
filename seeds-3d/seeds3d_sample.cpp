@@ -35,7 +35,7 @@ int main()
     //     }
     // }
 
-    std::ifstream file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/seeds-3d/array_3d.bin", std::ios::binary);
+    std::ifstream file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/array_3d.bin", std::ios::binary);
 
     // Check if the file opened successfully
     if (!file.is_open()) {
@@ -71,7 +71,7 @@ int main()
     //     if (i%20==0) cout<<endl;
     // }
     
-    std::ofstream out_file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/seeds-3d/result.bin", std::ios::out | std::ios::binary);
+    std::ofstream out_file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/result.bin", std::ios::out | std::ios::binary);
     if (!out_file) {
         std::cerr << "Error opening file for writing!" << std::endl;
         return -1;
