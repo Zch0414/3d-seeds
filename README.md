@@ -30,7 +30,7 @@ Test OpenCV C++ with the following command:
 ```
 > cd seeds-3d/samples/imshow
 > [manually modify] CMakeLists.txt:#3:/your/path/to/install_opencv/lib/cmake/opencv4
-> [manually modify] main.cpp:#6:/your/path/to/seeds-3d/00.jpg
+> [manually modify] main.cpp:#6:/your/path/to/seeds-3d/seeds-3d/00.jpg
 > mkdir build && cd build
 > cmake ..
 > make
@@ -44,7 +44,7 @@ Try SEEDS demo (C++) with the following command:
 > mkdir build && cd build
 > cmake ..
 > make
-> ./seeds_demo /your/path/to/seeds-3d/00.jpg
+> ./seeds_demo /your/path/to/seeds-3d/seeds-3d/00.jpg
 ```
 
 ## SEEDS-3D C++ Implementation
