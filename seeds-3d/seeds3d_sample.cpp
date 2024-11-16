@@ -42,13 +42,14 @@ int main()
     file.read(reinterpret_cast<char *>(data.data()), depth * height * width * sizeof(float));
     file.close();
     Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
+    img_data /= 255.0f;
     Mat frame(height, width, CV_8UC1);
     int idx = 30;
     for (int i = 0; i < height; ++i)
     {
         for (int j = 0; j < width; ++j)
         {
-            frame.at<uchar>(i, j) = static_cast<uchar>(data[idx * width * height + i * height + j]); // 只是一个示例填充
+            frame.at<uchar>(i, j) = static_cast<uchar>(data[idx * width * height + i * height + j]);
         }
     }
 
