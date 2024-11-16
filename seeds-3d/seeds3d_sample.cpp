@@ -32,7 +32,7 @@ int main()
     int depth = 48;
     int height = 192;
     int width = 192;
-    std::ifstream file("/Users/jiangyan/Desktop/seeds-3d-master/seeds-3d/array_3d.bin", std::ios::binary);
+    std::ifstream file("/Users/Zach/Zch/Research/seeds-3d/seeds-3d/array_3d.bin", std::ios::binary);
     if (!file.is_open())
     {
         std::cerr << "Error opening file!" << std::endl;
@@ -42,7 +42,6 @@ int main()
     file.read(reinterpret_cast<char *>(data.data()), depth * height * width * sizeof(float));
     file.close();
     Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
-    img_data /= 255.0f;
     Mat frame(height, width, CV_8UC1);
     int idx = 30;
     for (int i = 0; i < height; ++i)
@@ -81,7 +80,7 @@ int main()
 
         double t = (double)getTickCount();
 
-        Mat input = img_data;
+        Mat input = img_data / 255.0f;
         seeds->iterate(input, num_iterations);
 
         t = ((double)getTickCount() - t) / getTickFrequency();
