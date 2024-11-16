@@ -33,7 +33,7 @@ public:
     int getNumberOfSuperpixels() { return nrLabels(seeds_top_level); }
     void iterate(InputArray img, int num_iterations = 4);
     void getLabels(OutputArray labels_out);
-    void getLabelContourMask(OutputArray image, bool thick_line = false);
+    void getLabelContourMask(OutputArray image, bool thick_line = false, int idx=0);
 
 private:
     /* initialization */
@@ -2038,7 +2038,7 @@ bool SuperpixelSEEDS3DImpl::checkSplit_3d(
 //     return true;
 // }
 
-void SuperpixelSEEDS3DImpl::getLabelContourMask(OutputArray image, bool thick_line)
+void SuperpixelSEEDS3DImpl::getLabelContourMask(OutputArray image, bool thick_line, int idx)
 {
     image.create(height, width, CV_8UC1);
     Mat dst = image.getMat();
@@ -2061,7 +2061,7 @@ void SuperpixelSEEDS3DImpl::getLabelContourMask(OutputArray image, bool thick_li
                 {
                     int index = y * width + x;
                     int mainindex = j * width + k;
-                    if( labels[mainindex] != labels[index] )
+                    if( labels[idx*width*height+mainindex] != labels[idx*height*width+index] )
                     {
                         if( thick_line || !*dst.ptr<uchar>(y, x) )
                             neighbors++;

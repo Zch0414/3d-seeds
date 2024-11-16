@@ -135,7 +135,7 @@ public:
 
     ![image](pics/superpixels_demo.png)
      */
-    CV_WRAP virtual void getLabelContourMask(OutputArray image, bool thick_line = false) = 0;
+    CV_WRAP virtual void getLabelContourMask(OutputArray image, bool thick_line = false, int idx=0) = 0;
 
     virtual ~SuperpixelSEEDS3D() {}
 };
