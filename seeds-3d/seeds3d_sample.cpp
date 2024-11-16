@@ -43,7 +43,7 @@ int main()
     file.close();
     Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
     Mat frame(height, width, CV_8UC1);
-    int idx = 30;
+    int idx = 20;
     for (int i = 0; i < height; ++i)
     {
         for (int j = 0; j < width; ++j)
