@@ -200,7 +200,6 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
     int num_superpixels_h = (int)cbrtf((float)num_superpixels * (height / width) * (height / depth));
     int num_superpixels_w = num_superpixels_h * width / height;
     int num_superpixels_d = num_superpixels_h * depth / height;
-
     seeds_nr_levels = num_levels + 1;
     float seeds_wf, seeds_hf, seeds_df;
     do
@@ -340,7 +339,7 @@ void SuperpixelSEEDS3DImpl::initImageBins<float>(const Mat& img, int)
                 int bin = 0;
                 for(int i=0; i<channels; ++i)
                 {   
-                    bin = bin * nr_bins + std::min((int)(ptr[i] / 255.0 * (float)nr_bins), nr_bins-1);
+                    bin = bin * nr_bins + std::min((int)(ptr[i] * (float)nr_bins), nr_bins-1);
                 }
                 image_bins[z * img_width * img_height + y * img_width + x] = bin;
             }

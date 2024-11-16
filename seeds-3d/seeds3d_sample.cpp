@@ -51,6 +51,7 @@ int main()
     file.close();
     
     Mat img_data = Mat(3, (int[]){depth, height, width}, CV_32FC1, data.data());
+    img_data /= 255.0f;
     // std::cout << "Value at (24, 96, 96): " << img_data.at<float>(24, 96, 96) << std::endl;
     
     Ptr<SuperpixelSEEDS3D> seeds;
