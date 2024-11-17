@@ -1,0 +1,9 @@
+README.md
+setup.py
+seeds3d.egg-info/PKG-INFO
+seeds3d.egg-info/SOURCES.txt
+seeds3d.egg-info/dependency_links.txt
+seeds3d.egg-info/not-zip-safe
+seeds3d.egg-info/top_level.txt
+src/bindings.cpp
+src/seeds3d.cpp

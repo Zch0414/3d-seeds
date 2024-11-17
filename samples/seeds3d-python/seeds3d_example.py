@@ -18,7 +18,7 @@ seeds = seeds3d.createSuperpixelSEEDS3D(192, 192, 48, 1, num_superpixels,
                                            num_levels, prior, num_histogram_bins, double_step)
 
 # Iterate
-seeds.iterate(data, num_iterations=4)
+seeds.iterate(data=data, num_iterations=4)
 
 # Get the labels
 labels = seeds.getLabels()
