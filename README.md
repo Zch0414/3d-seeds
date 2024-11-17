@@ -1,14 +1,14 @@
-# seeds-3d
+# SEEDS3D
 
 ## Build Work Space
 
 Build the work space with the following command:
 ```
-> mkdir seeds-3d && cd seeds-3d
-> git clone git@github.com:Zch0414/seeds-3d.git
+> mkdir seeds3d && cd seeds3d
+> git clone git@github.com:Zch0414/seeds3d.git
 ```
 
-## OpenCV C++ Installation
+## OpenCV C++ Installation (in seeds3d directory)
 
 Build OpenCV with the following command (https://thecodinginterface.com/blog/opencv-cpp-vscode/):
 ```
@@ -25,6 +25,9 @@ Build OpenCV with the following command (https://thecodinginterface.com/blog/ope
 > make -j $CPUS
 > make install
 ```
+
+Your workspace should like:
+
 
 Test OpenCV C++ with the following command:
 ```
