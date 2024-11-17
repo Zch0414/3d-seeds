@@ -6,12 +6,12 @@ set(CMAKE_BUILD_TYPE Debug)
 find_package( OpenCV REQUIRED )
 include_directories(
     ${OpenCV_INCLUDE_DIRS} 
-    ../../seeds-3d
+    ../../src
 )
 set(
     SOURCES 
     seeds3d_sample.cpp 
-    ../../seeds-3d/seeds3d.cpp
+    ../../src/seeds3d.cpp
 )
 add_executable(seeds3d_sample ${SOURCES})
 target_link_libraries(seeds3d_sample ${OpenCV_LIBS})
