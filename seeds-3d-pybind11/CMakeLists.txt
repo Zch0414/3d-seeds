@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 2.8)
+project(seeds3d_python)
+set(OpenCV_DIR /Users/Zach/Zch/Research/seeds-3d/install_opencv/lib/cmake/opencv4)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package( OpenCV REQUIRED )
+include_directories(${OpenCV_INCLUDE_DIRS})
+add_executable(seeds3d_demo seeds3d_sample.cpp seeds3d.cpp)
+find_package(pybind11 REQUIRED)
+pybind11_add_module(seeds3d MODULE seeds3d.cpp)
+
+target_link_libraries(seeds3d PRIVATE ${OpenCV_LIBS})
