@@ -1,4 +1,5 @@
 import numpy as np
+import nibabel as nib
 import seeds3d
 
 # Load your 3D data
@@ -9,7 +10,7 @@ data = data.reshape((48, 192, 192))
 data = data / 255.0
 
 # Create the SEEDS3D object
-num_superpixels = 400
+num_superpixels = 432
 num_levels = 4
 prior = 2
 num_histogram_bins = 5
@@ -22,3 +23,14 @@ seeds.iterate(data=data, num_iterations=4)
 
 # Get the labels
 labels = seeds.getLabels()
+print(labels)
+
+data = labels.transpose(1, 2, 0)
+affine = np.array([
+    [-1, 0, 0, 0], 
+    [0, -1, 0, 0], 
+    [0, 0, 4, 0],  
+    [0, 0, 0, 1]
+])
+img_nii = nib.Nifti1Image(data, affine)
+nib.save(img_nii, './result.nii.gz')
