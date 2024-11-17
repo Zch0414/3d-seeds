@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(imshow)
-set(OpenCV_DIR /Users/Zach/Zch/Research/seeds-3d/install_opencv/lib/cmake/opencv4)
+set(OpenCV_DIR /Users/Zach/Zch/Research/seeds3d/install_opencv/lib/cmake/opencv4)
 set(CMAKE_CXX_STANDARD 14)
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )

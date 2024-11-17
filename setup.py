@@ -5,8 +5,8 @@ import os
 
 
 # Path to your OpenCV installation in the project
-opencv_include_dir = '/Users/Zach/Zch/Research/seeds-3d/install_opencv/include/opencv4'
-opencv_library_dir = '/Users/Zach/Zch/Research/seeds-3d/install_opencv/lib'
+opencv_include_dir = '/Users/Zach/Zch/Research/seeds3d/install_opencv/include/opencv4'
+opencv_library_dir = '/Users/Zach/Zch/Research/seeds3d/install_opencv/lib'
 
 ext_modules = [
     Extension(
