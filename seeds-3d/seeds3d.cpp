@@ -492,8 +492,8 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                 int a322 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
                 int a331 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x - 1)];
                 int a332 = parent[level][(z + 1) * stepZ + (y + 1) * stepY + (x)];
-
                 done = false;
+
                 if( 
                     nr_partitions[labelA] == 2 
                     || (
@@ -603,8 +603,8 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                 int a321 = parent[level][(z + 1) * stepZ + (y) * stepY + (x - 1)];
                 int a322 = parent[level][(z + 1) * stepZ + (y) * stepY + (x)];
                 int a323 = parent[level][(z + 1) * stepZ + (y) * stepY + (x + 1)];
-
                 done = false;
+                
                 if( 
                     nr_partitions[labelA] == 2 
                     || (nr_partitions[labelA] > 2
@@ -712,8 +712,8 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
                 int a231 = parent[level][(z) * stepZ + (y + 1) * stepY + (x - 1)];
                 int a232 = parent[level][(z) * stepZ + (y + 1) * stepY + (x)];
                 int a233 = parent[level][(z) * stepZ + (y + 1) * stepY + (x + 1)];
-
                 done = false;
+
                 if( 
                     nr_partitions[labelA] == 2 
                     || (nr_partitions[labelA] > 2
