@@ -27,8 +27,10 @@ dependencies:
       - opencv-contrib-python==4.10.0.84
       - packaging==24.1
       - pillow==11.0.0
+      - pybind11==2.13.6
       - scikit-image==0.24.0
       - scipy==1.14.1
+      - seeds3d==0.1.0
       - tifffile==2024.9.20
       - typing-extensions==4.12.2
 prefix: /Users/Zach/miniconda3/envs/seeds3d
