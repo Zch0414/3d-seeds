@@ -104,6 +104,8 @@ Create the conda environment with the following command:
 
 After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:
 ```
+[manually modify] setup.py:#8:/your/path/to/seeds3d/install_opencv/include/opencv4
+[manually modify] setup.py:#9:/your/path/to/seeds3d/install_opencv/lib
 > python setup.py clean --all
 > python setup.py build
 > pip install .
