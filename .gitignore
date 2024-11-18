@@ -8,3 +8,4 @@ opencv_contrib/
 **/build/
 .* 
 ! .gitignore
+seeds3d.egg-info/
