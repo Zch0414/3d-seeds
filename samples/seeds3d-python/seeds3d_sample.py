@@ -23,7 +23,6 @@ seeds.iterate(data=data, num_iterations=4)
 
 # Get the labels
 labels = seeds.getLabels()
-print(labels)
 
 data = labels.transpose(1, 2, 0)
 affine = np.array([
