@@ -43,21 +43,54 @@ The following command should be executed within the **seeds3d/ (this repository)
 > cd seeds3d
 ```
 
+### CMakeLists.txt
+
+Here are CMakeLists templates for Mac and Linux:
+
+1. Mac /samples/mat/CMakeLists.txt:
+
+```
+> cmake_minimum_required(VERSION 2.8)
+> project(test_demo)
+> set(OpenCV_DIR /your/path/to/seeds3d/install_opencv/lib/cmake/opencv4)
+> set(CMAKE_CXX_STANDARD 14)
+> set(CMAKE_BUILD_TYPE Debug)
+> find_package( OpenCV REQUIRED )
+> include_directories(${OpenCV_INCLUDE_DIRS})
+> add_executable(test_demo ${SOURCES})
+> target_link_libraries(test_demo ${OpenCV_LIBS})
+```
+
+2. Linux (gcc/10.3.0) /samples/mat/CMakeLists.txt:
+
+```
+> cmake_minimum_required(VERSION 3.10)
+> project(test_demo)
+> set(CMAKE_PREFIX_PATH "/your/path/to/seeds3d/install_opencv" ${CMAKE_PREFIX_PATH})
+> set(OpenCV_DIR /your/path/to/seeds3d/install_opencv/share/opencv4)
+> set(CMAKE_CXX_STANDARD 14)
+> set(CMAKE_CXX_STANDARD_REQUIRED ON)
+> set(CMAKE_CXX_EXTENSIONS OFF)
+> find_package( OpenCV REQUIRED )
+> include_directories( ${OpenCV_INCLUDE_DIRS} )
+> add_executable(test_demo main.cpp)
+> target_link_libraries(test_demo ${OpenCV_LIBS})
+```
+
 ### Test OpenCV C++ with the following command:
 ```
-cd /samples/imshow
-> [manually modify] CMakeLists.txt:#3:/your/path/to/install_opencv/lib/cmake/opencv4
-> [manually modify] main.cpp:#6:/your/path/to/seeds3d/seeds3d/00.jpg
+cd /samples/mat
+> [manually modify] CMakeLists.txt
 > mkdir build && cd build
 > cmake ..
 > make
-> ./imshow
+> ./test_demo
 ```
 
 ### Try SEEDS demo (OpenCV C++) with the following command:
 ```
 cd /samples/seeds-opencv-cpp
-> [manually modify] CMakeLists.txt:#3:/your/path/to/install_opencv/lib/cmake/opencv4
+> [manually modify] CMakeLists.txt
 > mkdir build && cd build
 > cmake ..
 > make
@@ -65,7 +98,7 @@ cd /samples/seeds-opencv-cpp
 ```
 Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp**. It does not depend on ximgproc and can be used for debugging purposes.
 
-## SEEDS-3D C++ Implementation
+### Try SEEDS3D demo (C++) (only support Mac)
 
 Prepare input with the following command:
 ```
@@ -75,9 +108,9 @@ Prepare input with the following command:
 Run SEEDS3D (C++) with the following command:
 ```
 cd /samples/seeds3d-cpp
+> [manually modify] CMakeLists.txt
 > [manually modify] seeds3d_sample.cpp:#35:/your/path/to/seeds3d/seeds3d/array_3d.bin
 > [manually modify] seeds3d_sample.cpp:#95:/your/path/to/seeds3d/seeds3d/result.bin
-> [manually modify] CMakeLists.txt:#3:/your/path/to/install_opencv/lib/cmake/opencv4
 > mkdir build && cd build
 > cmake ..
 > make
@@ -98,7 +131,7 @@ Create the conda environment with the following command:
 > conda activate seeds3d
 ```
 
-### Try SEEDS demo (OpenCV Python) with the following command:
+### Try SEEDS demo (OpenCV Python) with the following command (only support Mac):
 ```
 > cd /samples/seeds-opencv-python
 > python seeds.py
@@ -109,7 +142,9 @@ Create the conda environment with the following command:
 After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:
 ```
 [manually modify] setup.py:#8:/your/path/to/seeds3d/install_opencv/include/opencv4
-[manually modify] setup.py:#9:/your/path/to/seeds3d/install_opencv/lib
+[manually modify]
+  - (For Mac) setup.py:#9:/your/path/to/seeds3d/install_opencv/lib
+  - (For Linux) setup.py:#9:/your/path/to/seeds3d/install_opencv/lib64
 > python setup.py clean --all
 > python setup.py build
 > pip install .
