@@ -41,7 +41,7 @@ int main()
     std::vector<float> data(depth * height * width);
     file.read(reinterpret_cast<char *>(data.data()), depth * height * width * sizeof(float));
     file.close();
-    int img_sizes = {depth, height, width};
+    int img_sizes[3] = {depth, height, width};
     Mat img_data = Mat(3, img_sizes, CV_32FC1, data.data());
     Mat frame(height, width, CV_8UC1);
 
