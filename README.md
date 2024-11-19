@@ -5,7 +5,6 @@
 Build the work space with the following command:
 ```
 > mkdir seeds3d && cd seeds3d
-> git clone git@github.com:Zch0414/seeds3d.git
 ```
 
 ## OpenCV C++ Installation (in current directory)
@@ -24,6 +23,11 @@ Build OpenCV with the following command (https://thecodinginterface.com/blog/ope
 > export CPUS=$(sysctl -n hw.physicalcpu)
 > make -j $CPUS
 > make install
+```
+
+## Build SEEDS3D
+```
+> git clone git@github.com:Zch0414/seeds3d.git
 ```
 
 Your workspace should like:
