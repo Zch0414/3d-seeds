@@ -12,8 +12,8 @@ Build the work space with the following command:
 
 Build OpenCV with the following command (https://thecodinginterface.com/blog/opencv-cpp-vscode/):
 ```
-> git clone https://github.com/opencv/opencv.git
-> git clone https://github.com/opencv/opencv_contrib.git
+> git clone https://github.com/opencv/opencv.git (4.10.84)
+> git clone https://github.com/opencv/opencv_contrib.git (4.10.84)
 > mkdir build_opencv install_opencv
 > cd build_opencv
 > cmake -D CMAKE_BUILD_TYPE=RELEASE \
