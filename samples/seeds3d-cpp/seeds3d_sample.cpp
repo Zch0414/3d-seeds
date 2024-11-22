@@ -53,10 +53,11 @@ int main()
     int num_levels = 4;
     int num_histogram_bins = 5;
     int idx = 20;
-    createTrackbar("idx of image", window_name, &idx, 48, trackbarChanged);
-    createTrackbar("Number of Superpixels", window_name, &num_superpixels, 1000, trackbarChanged);
-    createTrackbar("Smoothing Prior", window_name, &prior, 5, trackbarChanged);
-    createTrackbar("Number of Levels", window_name, &num_levels, 10, trackbarChanged);
+    createTrackbar("Slice", window_name, &idx, 48, trackbarChanged);
+    createTrackbar("# Pixels", window_name, &num_superpixels, 1000, trackbarChanged);
+    createTrackbar("# Levels", window_name, &num_levels, 10, trackbarChanged);
+    createTrackbar("# Bins", window_name, &num_histogram_bins, 15, trackbarChanged);
+    createTrackbar("Prior", window_name, &prior, 5, trackbarChanged);
     createTrackbar("Iterations", window_name, &num_iterations, 12, 0);
 
     Ptr<SuperpixelSEEDS3D> seeds;
