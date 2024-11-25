@@ -98,7 +98,7 @@ cd /samples/seeds-opencv-cpp
 ```
 Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp**. It does not depend on ximgproc and can be used for debugging purposes.
 
-### Try SEEDS3D demo (C++) (only support Mac)
+### Try SEEDS3D demo (C++) (only tested on Mac)
 
 Prepare input with the following command:
 ```
@@ -131,7 +131,7 @@ Create the conda environment with the following command:
 > conda activate seeds3d
 ```
 
-### Try SEEDS demo (OpenCV Python) with the following command (only support Mac):
+### Try SEEDS demo (OpenCV Python) with the following command (only tested on Mac):
 ```
 > cd /samples/seeds-opencv-python
 > python seeds.py
@@ -142,9 +142,9 @@ Create the conda environment with the following command:
 After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:
 ```
 [manually modify] setup.py:#8:/your/path/to/seeds3d/install_opencv/include/opencv4
-[manually modify]
-  - (For Mac) setup.py:#9:/your/path/to/seeds3d/install_opencv/lib
-  - (For Linux) setup.py:#9:/your/path/to/seeds3d/install_opencv/lib64
+[manually modify] setup.py:#9
+  - (For Mac) /your/path/to/seeds3d/install_opencv/lib
+  - (For Linux) /your/path/to/seeds3d/install_opencv/lib64
 > python setup.py clean --all
 > python setup.py build
 > pip install .
