@@ -25,7 +25,9 @@ Build OpenCV with the following command (https://thecodinginterface.com/blog/ope
 > make install
 ```
 
-## Build SEEDS3D
+## SEEDS3D (C++)
+
+First, clone this repository with the following command:
 ```
 > git clone git@github.com:Zch0414/seeds3d.git
 ```
@@ -47,8 +49,7 @@ The following command should be executed within the **seeds3d/ (this repository)
 
 Here are CMakeLists templates for Mac and Linux:
 
-1. Mac /samples/mat/CMakeLists.txt:
-
+1. Mac samples/mat/CMakeLists.txt:
 ```
 > cmake_minimum_required(VERSION 2.8)
 > project(test_demo)
@@ -61,8 +62,7 @@ Here are CMakeLists templates for Mac and Linux:
 > target_link_libraries(test_demo ${OpenCV_LIBS})
 ```
 
-2. Linux (gcc/10.3.0) /samples/mat/CMakeLists.txt:
-
+2. Linux (gcc/10.3.0) samples/mat/CMakeLists.txt:
 ```
 > cmake_minimum_required(VERSION 3.10)
 > project(test_demo)
@@ -77,9 +77,11 @@ Here are CMakeLists templates for Mac and Linux:
 > target_link_libraries(test_demo ${OpenCV_LIBS})
 ```
 
-### Test OpenCV C++ with the following command:
+### Test OpenCV
+
+Test Opencv (C++) with the following command:
 ```
-cd /samples/mat
+cd samples/mat
 > [manually modify] CMakeLists.txt
 > mkdir build && cd build
 > cmake ..
@@ -87,43 +89,56 @@ cd /samples/mat
 > ./test_demo
 ```
 
-### Try SEEDS demo (OpenCV C++) with the following command:
+### SEEDS Demo (OpenCV && Only Tested on Mac)
+
+Try SEEDS demo with the following command:
 ```
-cd /samples/seeds-opencv-cpp
+cd samples/seeds-opencv-cpp
 > [manually modify] CMakeLists.txt
 > mkdir build && cd build
 > cmake ..
 > make
-> ./seeds_demo /your/path/to/seeds3d/seeds3d/00.jpg
+> ./seeds_demo /your/path/to/seeds3d/seeds3d/data/00.jpg
 ```
+
 Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp**. It does not depend on ximgproc and can be used for debugging purposes.
 
-### Try SEEDS3D demo (C++) (only tested on Mac)
+### SEEDS3D Demo (Only Tested on Mac)
 
 Prepare input with the following command:
 ```
+> cd data
 > python nifti_to_array.py
+> cd ..
 ```
 
 Run SEEDS3D (C++) with the following command:
 ```
-cd /samples/seeds3d-cpp
+cd samples/seeds3d-cpp
 > [manually modify] CMakeLists.txt
-> [manually modify] seeds3d_sample.cpp:#35:/your/path/to/seeds3d/seeds3d/array_3d.bin
-> [manually modify] seeds3d_sample.cpp:#95:/your/path/to/seeds3d/seeds3d/result.bin
+> [manually modify] seeds3d_sample.cpp:#35:/your/path/to/seeds3d/seeds3d/data/input.bin
+> [manually modify] seeds3d_sample.cpp:#97:/your/path/to/seeds3d/seeds3d/data/result.bin
 > mkdir build && cd build
 > cmake ..
 > make
 > ./seeds3d_sample
 ```
-This will provide an interactive window where you can adjust various hyperparameters in the SEEDS algorithm. 
-Additionally, it will save result.bin in the /seeds3d directory, which you can process using the following command and visualize with 3D Slicer:
-```
-> python bin_to_nifti.py
-```
-This will generate a /results.nii.gz file, which can be visualized using 3D Slicer.
 
-## Create Python Environment
+This will provide an interactive window where you can adjust various hyperparameters in the SEEDS algorithm. 
+Additionally, it will save result.bin in the /your/path/to/seeds3d/seeds3d/data directory.
+
+you can get a NIfTI file using the following command:
+```
+> cd data
+> python bin_to_nifti.py
+> cd ..
+```
+
+This will generate a results_bin.nii.gz file, which can be visualized using 3D Slicer.
+
+## SEEDS3D (Python)
+
+### Create Python Environment
 
 Create the conda environment with the following command:
 ```
@@ -131,28 +146,34 @@ Create the conda environment with the following command:
 > conda activate seeds3d
 ```
 
-### Try SEEDS demo (OpenCV Python) with the following command (only tested on Mac):
+### SEEDS Demo (OpenCV && Only Tested on Mac)
+
+Try SEEDS demo with the following command:
 ```
-> cd /samples/seeds-opencv-python
+> cd samples/seeds-opencv-python
 > python seeds.py
 ```
 
-## SEEDS3D Python Installation
+### SEEDS3D Installation
 
 After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:
 ```
-[manually modify] setup.py:#8:/your/path/to/seeds3d/install_opencv/include/opencv4
+[manually modify] setup.py:#8: /your/path/to/seeds3d/install_opencv/include/opencv4
 [manually modify] setup.py:#9
-  - (For Mac) /your/path/to/seeds3d/install_opencv/lib
-  - (For Linux) /your/path/to/seeds3d/install_opencv/lib64
+  - (For Mac): /your/path/to/seeds3d/install_opencv/lib
+  - (For Linux): /your/path/to/seeds3d/install_opencv/lib64
 > python setup.py clean --all
 > python setup.py build
 > pip install .
 ```
 
-### Try SEEDS3D demo (Python) with the following command:
+### SEEDS3D Demo:
+
+Try SEEDS3D demo with the following command:
 ```
-> cd /samples/seeds3d-python
+> cd samples/seeds3d-python
 > python seeds3d_sample.py
 ```
-This will generate a /samples/seeds3d-python/results.nii.gz file, which can be visualized using 3D Slicer.
+
+This will generate a your/path/to/seeds3d/seeds3d/data/results_nii.nii.gz file.
+You can visualize it with 3D Slicer.
