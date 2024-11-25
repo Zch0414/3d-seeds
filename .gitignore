@@ -9,3 +9,4 @@ opencv_contrib/
 .* 
 ! .gitignore
 seeds3d.egg-info/
+BRAIN_UM_D043F1B6/

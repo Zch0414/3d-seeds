@@ -32,7 +32,7 @@ int main()
     int depth = 48;
     int height = 192;
     int width = 192;
-    std::ifstream file("/Users/Zach/Zch/Research/seeds3d/seeds3d/array_3d.bin", std::ios::binary);
+    std::ifstream file("/Users/Zach/Zch/Research/seeds3d/seeds3d/data/array_3d.bin", std::ios::binary);
     if (!file.is_open())
     {
         std::cerr << "Error opening file!" << std::endl;
