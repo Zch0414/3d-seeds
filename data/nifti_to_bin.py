@@ -3,7 +3,6 @@ import nibabel as nib
 
 
 if __name__ == "__main__":
-    # data_path = './BRAIN_UM_D043F1B6/save_pro/AXIAL_T2__F_S_TSE/nifti_pro.nii.gz'
     data_path = './BraTS-GLI-00000-000-t1c.nii.gz'
     image = nib.load(data_path)
     image_array = image.get_fdata() 
@@ -20,4 +19,4 @@ if __name__ == "__main__":
 
     image_array = np.transpose(np.array(image_array).astype(np.float32), transpose_order)
     print(f'Array shape: {image_array.shape}; Max value: {image_array.max()}; Min value: {image_array.min()}; Type: {image_array.dtype}')
-    image_array.tofile('./array_3d.bin')
+    image_array.tofile('./input.bin')

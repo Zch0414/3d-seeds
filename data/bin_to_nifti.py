@@ -13,4 +13,4 @@ if __name__ == '__main__':
         [0, 0, 0, 1]
     ])
     img_nii = nib.Nifti1Image(data, affine)
-    nib.save(img_nii, './result.nii.gz')
+    nib.save(img_nii, './result_bin.nii.gz')
