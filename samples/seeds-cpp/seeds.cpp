@@ -40,7 +40,7 @@
 //M*/
 
 #include "precomp.hpp"
-#include "seeds.hpp"
+
 /******************************************************************************\
 *                            SEEDS Superpixels                                *
 *  This code implements the superpixel method described in:                   *
@@ -58,9 +58,9 @@ using namespace std;
 
 //required confidence when double_step is used
 #define REQ_CONF 0.1f
-
 #define MINIMUM_NR_SUBLABELS 1
 #define CV_MALLOC_ALIGN 16
+
 
 // the type of the histogram and the T array
 typedef float HISTN;
@@ -69,15 +69,15 @@ typedef float HISTN;
 namespace cv {
 namespace ximgproc {
 
-class SuperpixelSEEDSImplDebug : public SuperpixelSEEDSDebug
+class SuperpixelSEEDSImpl : public SuperpixelSEEDS
 {
 public:
 
-    SuperpixelSEEDSImplDebug(int image_width, int image_height, int image_channels,
+    SuperpixelSEEDSImpl(int image_width, int image_height, int image_channels,
             int num_superpixels, int num_levels,  int prior = 2,
            int histogram_bins = 5,  bool double_step = false);
 
-    virtual ~SuperpixelSEEDSImplDebug();
+    virtual ~SuperpixelSEEDSImpl();
 
     virtual int getNumberOfSuperpixels() CV_OVERRIDE { return nrLabels(seeds_top_level); }
 
@@ -131,7 +131,6 @@ private:
     inline bool checkSplit_hb(int a12, int a13, int a22, int a23, int a32, int a33);
     inline bool checkSplit_vf(int a11, int a12, int a13, int a21, int a22, int a23);
     inline bool checkSplit_vb(int a21, int a22, int a23, int a31, int a32, int a33);
-    inline bool checkSplit_2d(int a11, int a12, int a21, int a22, int a31, int a32);
 
 
     //compute initial label for sublevels: level <= seeds_top_level
@@ -185,15 +184,15 @@ private:
     vector<Mat> parent_pre_init_mat;
 };
 
-CV_EXPORTS Ptr<SuperpixelSEEDSDebug> createSuperpixelSEEDSDebug(int image_width, int image_height,
+CV_EXPORTS Ptr<SuperpixelSEEDS> createSuperpixelSEEDS(int image_width, int image_height,
         int image_channels, int num_superpixels, int num_levels, int prior, int histogram_bins,
         bool double_step)
 {
-    return makePtr<SuperpixelSEEDSImplDebug>(image_width, image_height, image_channels,
+    return makePtr<SuperpixelSEEDSImpl>(image_width, image_height, image_channels,
             num_superpixels, num_levels, prior, histogram_bins, double_step);
 }
 
-SuperpixelSEEDSImplDebug::SuperpixelSEEDSImplDebug(int image_width, int image_height, int image_channels,
+SuperpixelSEEDSImpl::SuperpixelSEEDSImpl(int image_width, int image_height, int image_channels,
             int num_superpixels, int num_levels, int prior, int histogram_bins, bool double_step)
 {
     width = image_width;
@@ -212,12 +211,12 @@ SuperpixelSEEDSImplDebug::SuperpixelSEEDSImplDebug(int image_width, int image_he
     initialize(num_superpixels, num_levels);
 }
 
-SuperpixelSEEDSImplDebug::~SuperpixelSEEDSImplDebug()
+SuperpixelSEEDSImpl::~SuperpixelSEEDSImpl()
 {
 }
 
 
-void SuperpixelSEEDSImplDebug::iterate(InputArray img, int num_iterations)
+void SuperpixelSEEDSImpl::iterate(InputArray img, int num_iterations)
 {
     initImage(img);
 
@@ -235,12 +234,12 @@ void SuperpixelSEEDSImplDebug::iterate(InputArray img, int num_iterations)
     for (int i = 0; i < num_iterations; ++i)
         updatePixels();
 }
-void SuperpixelSEEDSImplDebug::getLabels(OutputArray labels_out)
+void SuperpixelSEEDSImpl::getLabels(OutputArray labels_out)
 {
     labels_out.assign(labels_mat);
 }
 
-void SuperpixelSEEDSImplDebug::initialize(int num_superpixels, int num_levels)
+void SuperpixelSEEDSImpl::initialize(int num_superpixels, int num_levels)
 {
     /* enforce parameter restrictions */
     if( num_superpixels < 10 )
@@ -334,7 +333,7 @@ void SuperpixelSEEDSImplDebug::initialize(int num_superpixels, int num_levels)
 
 
 template<typename _Tp>
-void SuperpixelSEEDSImplDebug::initImageBins(const Mat& img, int max_value)
+void SuperpixelSEEDSImpl::initImageBins(const Mat& img, int max_value)
 {
     int img_width = img.size().width;
     int img_height = img.size().height;
@@ -355,7 +354,7 @@ void SuperpixelSEEDSImplDebug::initImageBins(const Mat& img, int max_value)
 
 /* specialization for float: max_value is assumed to be 1.0f */
 template<>
-void SuperpixelSEEDSImplDebug::initImageBins<float>(const Mat& img, int)
+void SuperpixelSEEDSImpl::initImageBins<float>(const Mat& img, int)
 {
     int img_width = img.size().width;
     int img_height = img.size().height;
@@ -374,7 +373,7 @@ void SuperpixelSEEDSImplDebug::initImageBins<float>(const Mat& img, int)
     }
 }
 
-void SuperpixelSEEDSImplDebug::initImage(InputArray img)
+void SuperpixelSEEDSImpl::initImage(InputArray img)
 {
     Mat src;
 
@@ -429,7 +428,7 @@ void SuperpixelSEEDSImplDebug::initImage(InputArray img)
 }
 
 // adds labeling to all the blocks at all levels and sets the correct parents
-void SuperpixelSEEDSImplDebug::assignLabels()
+void SuperpixelSEEDSImpl::assignLabels()
 {
     /* each top level label is partitioned into 4 elements */
     int nr_labels_toplevel = nrLabels(seeds_top_level);
@@ -443,7 +442,7 @@ void SuperpixelSEEDSImplDebug::assignLabels()
     }
 }
 
-void SuperpixelSEEDSImplDebug::computeHistograms(int until_level)
+void SuperpixelSEEDSImpl::computeHistograms(int until_level)
 {
     if( until_level == -1 )
         until_level = seeds_nr_levels - 1;
@@ -472,7 +471,7 @@ void SuperpixelSEEDSImplDebug::computeHistograms(int until_level)
     }
 }
 
-void SuperpixelSEEDSImplDebug::updateBlocks(int level, float req_confidence)
+void SuperpixelSEEDSImpl::updateBlocks(int level, float req_confidence)
 {
     int labelA;
     int labelB;
@@ -505,7 +504,7 @@ void SuperpixelSEEDSImplDebug::updateBlocks(int level, float req_confidence)
             done = false;
 
             if( nr_partitions[labelA] == 2 || (nr_partitions[labelA] > 2 // 3 or more partitions
-                    && checkSplit_2d(a11, a12, a21, a22, a31, a32)) )
+                    && checkSplit_hf(a11, a12, a21, a22, a31, a32)) )
             {
                 // run algorithm as usual
                 float conf = intersectConf(seeds_top_level, labelB, labelA, level, sublabel);
@@ -528,7 +527,7 @@ void SuperpixelSEEDSImplDebug::updateBlocks(int level, float req_confidence)
                 int a33 = parent[level][(y + 1) * step + (x + 1)];
                 int a34 = parent[level][(y + 1) * step + (x + 2)];
                 if( nr_partitions[labelB] <= 2 // == 2
-                        || (nr_partitions[labelB] > 2 && checkSplit_2d(a34, a33, a24, a23, a14, a13)) )
+                        || (nr_partitions[labelB] > 2 && checkSplit_hb(a13, a14, a23, a24, a33, a34)) )
                 {
                     // run algorithm as usual
                     float conf = intersectConf(seeds_top_level, labelA, labelB, level, sublabel);
@@ -606,7 +605,7 @@ void SuperpixelSEEDSImplDebug::updateBlocks(int level, float req_confidence)
     }
 }
 
-int SuperpixelSEEDSImplDebug::goDownOneLevel()
+int SuperpixelSEEDSImpl::goDownOneLevel()
 {
     int old_level = seeds_current_level;
     int new_level = seeds_current_level - 1;
@@ -636,7 +635,7 @@ int SuperpixelSEEDSImplDebug::goDownOneLevel()
     return new_level;
 }
 
-void SuperpixelSEEDSImplDebug::updatePixels()
+void SuperpixelSEEDSImpl::updatePixels()
 {
     int labelA;
     int labelB;
@@ -663,7 +662,7 @@ void SuperpixelSEEDSImplDebug::updatePixels()
                     int a21 = labels[(y) * width + (x - 1)];
                     int a31 = labels[(y + 1) * width + (x - 1)];
                     int a32 = labels[(y + 1) * width + (x)];
-                    if( checkSplit_2d(a11, a12, a21, a22, a31, a32) )
+                    if( checkSplit_hf(a11, a12, a21, a22, a31, a32) )
                     {
                         if( seeds_prior )
                         {
@@ -682,7 +681,7 @@ void SuperpixelSEEDSImplDebug::updatePixels()
                             int a24 = labels[(y) * width + (x + 2)];
                             int a33 = labels[(y + 1) * width + (x + 1)];
                             int a34 = labels[(y + 1) * width + (x + 2)];
-                            if( checkSplit_2d(a34, a33, a24, a23, a14, a13) )
+                            if( checkSplit_hb(a13, a14, a23, a24, a33, a34) )
                             {
                                 if( probability(y * width + x + 1, labelB, labelA, priorB, priorA) )
                                 {
@@ -701,7 +700,7 @@ void SuperpixelSEEDSImplDebug::updatePixels()
                     int a24 = labels[(y) * width + (x + 2)];
                     int a33 = labels[(y + 1) * width + (x + 1)];
                     int a34 = labels[(y + 1) * width + (x + 2)];
-                    if( checkSplit_2d(a34, a33, a24, a23, a14, a13) )
+                    if( checkSplit_hb(a13, a14, a23, a24, a33, a34) )
                     {
                         if( seeds_prior )
                         {
@@ -721,7 +720,7 @@ void SuperpixelSEEDSImplDebug::updatePixels()
                             int a21 = labels[(y) * width + (x - 1)];
                             int a31 = labels[(y + 1) * width + (x - 1)];
                             int a32 = labels[(y + 1) * width + (x)];
-                            if( checkSplit_2d(a11, a12, a21, a22, a31, a32) )
+                            if( checkSplit_hf(a11, a12, a21, a22, a31, a32) )
                             {
                                 if( probability(y * width + x, labelA, labelB, priorA, priorB) )
                                 {
@@ -853,7 +852,7 @@ void SuperpixelSEEDSImplDebug::updatePixels()
     }
 }
 
-void SuperpixelSEEDSImplDebug::update(int label_new, int image_idx, int label_old)
+void SuperpixelSEEDSImpl::update(int label_new, int image_idx, int label_old)
 {
     //change the label of a single pixel
     deletePixel(seeds_top_level, label_old, image_idx);
@@ -861,19 +860,19 @@ void SuperpixelSEEDSImplDebug::update(int label_new, int image_idx, int label_ol
     labels[image_idx] = label_new;
 }
 
-void SuperpixelSEEDSImplDebug::addPixel(int level, int label, int image_idx)
+void SuperpixelSEEDSImpl::addPixel(int level, int label, int image_idx)
 {
     histogram[level][label * histogram_size_aligned + image_bins[image_idx]]++;
     T[level][label]++;
 }
 
-void SuperpixelSEEDSImplDebug::deletePixel(int level, int label, int image_idx)
+void SuperpixelSEEDSImpl::deletePixel(int level, int label, int image_idx)
 {
     histogram[level][label * histogram_size_aligned + image_bins[image_idx]]--;
     T[level][label]--;
 }
 
-void SuperpixelSEEDSImplDebug::addBlock(int level, int label, int sublevel,
+void SuperpixelSEEDSImpl::addBlock(int level, int label, int sublevel,
         int sublabel)
 {
     parent[sublevel][sublabel] = label;
@@ -902,13 +901,13 @@ void SuperpixelSEEDSImplDebug::addBlock(int level, int label, int sublevel,
     T[level][label] += T[sublevel][sublabel];
 }
 
-void SuperpixelSEEDSImplDebug::addBlockToplevel(int label, int sublevel, int sublabel)
+void SuperpixelSEEDSImpl::addBlockToplevel(int label, int sublevel, int sublabel)
 {
     addBlock(seeds_top_level, label, sublevel, sublabel);
     nr_partitions[label]++;
 }
 
-void SuperpixelSEEDSImplDebug::deleteBlockToplevel(int label, int sublevel, int sublabel)
+void SuperpixelSEEDSImpl::deleteBlockToplevel(int label, int sublevel, int sublabel)
 {
     HISTN* h_label = &histogram[seeds_top_level][label * histogram_size_aligned];
     HISTN* h_sublabel = &histogram[sublevel][sublabel * histogram_size_aligned];
@@ -936,13 +935,13 @@ void SuperpixelSEEDSImplDebug::deleteBlockToplevel(int label, int sublevel, int 
     nr_partitions[label]--;
 }
 
-void SuperpixelSEEDSImplDebug::updateLabels()
+void SuperpixelSEEDSImpl::updateLabels()
 {
     for (int i = 0; i < width * height; ++i)
         labels[i] = parent[0][labels_bottom[i]];
 }
 
-bool SuperpixelSEEDSImplDebug::probability(int image_idx, int label1, int label2,
+bool SuperpixelSEEDSImpl::probability(int image_idx, int label1, int label2,
         int prior1, int prior2)
 {
     unsigned int color = image_bins[image_idx];
@@ -980,7 +979,7 @@ bool SuperpixelSEEDSImplDebug::probability(int image_idx, int label1, int label2
     return (P_label2 > P_label1);
 }
 
-int SuperpixelSEEDSImplDebug::threebyfour(int x, int y, int label)
+int SuperpixelSEEDSImpl::threebyfour(int x, int y, int label)
 {
     /* count how many pixels in a neighborhood of (x,y) have the label 'label'.
      * neighborhood (x=counted, o,O=ignored, O=(x,y)):
@@ -1030,7 +1029,7 @@ int SuperpixelSEEDSImplDebug::threebyfour(int x, int y, int label)
 #endif
 }
 
-int SuperpixelSEEDSImplDebug::fourbythree(int x, int y, int label)
+int SuperpixelSEEDSImpl::fourbythree(int x, int y, int label)
 {
     /* count how many pixels in a neighborhood of (x,y) have the label 'label'.
      * neighborhood (x=counted, o,O=ignored, O=(x,y)):
@@ -1074,10 +1073,10 @@ int SuperpixelSEEDSImplDebug::fourbythree(int x, int y, int label)
     count += (labels[(y - 1) * width + x + 1] == label);
 
     count += (labels[y * width + x - 1] == label);
-    count += (labels[y * width + x + 1] == label);
+    count += (labels[y * width + x + 2] == label);
 
     count += (labels[(y + 1) * width + x - 1] == label);
-    count += (labels[(y + 1) * width + x + 1] == label);
+    count += (labels[(y + 1) * width + x + 2] == label);
 
     count += (labels[(y + 2) * width + x - 1] == label);
     count += (labels[(y + 2) * width + x] == label);
@@ -1087,7 +1086,7 @@ int SuperpixelSEEDSImplDebug::fourbythree(int x, int y, int label)
 #endif
 }
 
-float SuperpixelSEEDSImplDebug::intersectConf(int level1, int label1A, int label1B,
+float SuperpixelSEEDSImpl::intersectConf(int level1, int label1A, int label1B,
         int level2, int label2)
 {
     float sumA = 0, sumB = 0;
@@ -1178,14 +1177,14 @@ float SuperpixelSEEDSImplDebug::intersectConf(int level1, int label1A, int label
     return intA - intB;
 }
 
-bool SuperpixelSEEDSImplDebug::checkSplit_hf(int a11, int a12, int a21, int a22, int a31, int a32)
+bool SuperpixelSEEDSImpl::checkSplit_hf(int a11, int a12, int a21, int a22, int a31, int a32)
 {
     if( (a22 != a21) && (a22 == a12) && (a22 == a32) ) return false;
     if( (a22 != a11) && (a22 == a12) && (a22 == a21) ) return false;
     if( (a22 != a31) && (a22 == a32) && (a22 == a21) ) return false;
     return true;
 }
-bool SuperpixelSEEDSImplDebug::checkSplit_hb(int a12, int a13, int a22, int a23, int a32, int a33)
+bool SuperpixelSEEDSImpl::checkSplit_hb(int a12, int a13, int a22, int a23, int a32, int a33)
 {
     if( (a22 != a23) && (a22 == a12) && (a22 == a32) ) return false;
     if( (a22 != a13) && (a22 == a12) && (a22 == a23) ) return false;
@@ -1193,31 +1192,22 @@ bool SuperpixelSEEDSImplDebug::checkSplit_hb(int a12, int a13, int a22, int a23,
     return true;
 
 }
-bool SuperpixelSEEDSImplDebug::checkSplit_vf(int a11, int a12, int a13, int a21, int a22, int a23)
+bool SuperpixelSEEDSImpl::checkSplit_vf(int a11, int a12, int a13, int a21, int a22, int a23)
 {
     if( (a22 != a12) && (a22 == a21) && (a22 == a23) ) return false;
     if( (a22 != a11) && (a22 == a21) && (a22 == a12) ) return false;
     if( (a22 != a13) && (a22 == a23) && (a22 == a12) ) return false;
     return true;
 }
-bool SuperpixelSEEDSImplDebug::checkSplit_vb(int a21, int a22, int a23, int a31, int a32, int a33)
+bool SuperpixelSEEDSImpl::checkSplit_vb(int a21, int a22, int a23, int a31, int a32, int a33)
 {
     if( (a22 != a32) && (a22 == a21) && (a22 == a23) ) return false;
     if( (a22 != a31) && (a22 == a21) && (a22 == a32) ) return false;
     if( (a22 != a33) && (a22 == a23) && (a22 == a32) ) return false;
     return true;
 }
-bool SuperpixelSEEDSImplDebug::checkSplit_2d(int a11, int a12, int a21, int a22, int a31, int a32)
-{   
-    if( (a11 == a22) && (a12 != a22) && (a21 != a22) ) return false;
-    if( (a12 == a22) && (a11 != a22) ) return false;
-    if( (a21 == a22) && (a11 != a22) && (a31 != a22) ) return false;
-    if( (a31 == a22) && (a21 != a22) && (a32 != a22) ) return false;
-    if( (a32 == a22) && (a31 != a22)) return false;
-    return true;
-}
 
-void SuperpixelSEEDSImplDebug::getLabelContourMask(OutputArray image, bool thick_line)
+void SuperpixelSEEDSImpl::getLabelContourMask(OutputArray image, bool thick_line)
 {
     image.create(height, width, CV_8UC1);
     Mat dst = image.getMat();
