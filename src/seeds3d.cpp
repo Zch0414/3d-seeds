@@ -2045,14 +2045,19 @@ bool SuperpixelSEEDS3DImpl::checkSplit_3d(
     int a211, int a212, int a221, int a222, int a231, int a232,
     int a311, int a312, int a321, int a322, int a331, int a332)
 {   
-    if( (a122 == a222) && (a112 != a222) && (a121 != a222) && (a132 != a222) ) return false;
-    if( (a322 == a222) && (a312 != a222) && (a321 != a222) && (a332 != a222) ) return false;
-    if( (a212 == a222) && (a112 != a222) && (a312 != a222) && (a211 != a222) ) return false;
-    if( (a232 == a222) && (a132 != a222) && (a332 != a222) && (a231 != a222) ) return false;
-    if( (a221 == a222) && (a121 != a222) && (a321 != a222) && (a211 != a222) && (a231 != a222) ) return false;
 
-    if( (a221 != a222) && (a212 == a222) && (a232 == a222)) return false;
-    if( (a221 != a222) && (a122 == a222) && (a322 == a222)) return false;
+    if( (a222 != a221) && (a222 == a212) && (a222 == a232) ) return false;
+    if( (a222 != a211) && (a222 == a212) && (a222 == a221) ) return false;
+    if( (a222 != a231) && (a222 == a221) && (a222 == a232) ) return false;
+
+    if( (a222 != a221) && (a222 == a122) && (a222 == a322) ) return false;
+    if( (a222 != a121) && (a222 == a122) && (a222 == a221) ) return false;
+    if( (a222 != a321) && (a222 == a221) && (a222 == a322) ) return false;
+
+    if( (a222 != a112) && (a222 == a122) && (a222 == a212) ) return false;
+    if( (a222 != a132) && (a222 == a122) && (a222 == a232) ) return false;
+    if( (a222 != a312) && (a222 == a212) && (a222 == a322) ) return false;
+    if( (a222 != a332) && (a222 == a232) && (a222 == a322) ) return false;
 
     return true;
 }
