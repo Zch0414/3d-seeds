@@ -4,6 +4,8 @@ import nibabel as nib
 
 if __name__ == "__main__":
     data_path = './BraTS-GLI-00000-000-t1c.nii.gz'
+    # data_path = '../UM/BRAIN_UM_00000972/save_pro/CORONAL-HEAD_WITHOUT-Protocol/nifti_pro.nii.gz'
+
     image = nib.load(data_path)
     image_array = image.get_fdata() 
     affine = image.affine
