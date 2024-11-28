@@ -29,9 +29,10 @@ void trackbarChanged(int, void *)
 int main()
 {
 
-    int depth = 48;
-    int height = 192;
     int width = 192;
+    int height = 192;
+    int depth = 48;
+
     std::ifstream file("/Users/Zach/Zch/Research/seeds3d/seeds3d/data/input.bin", std::ios::binary);
     if (!file.is_open())
     {
@@ -53,8 +54,8 @@ int main()
     int num_levels = 4;
     int num_histogram_bins = 5;
     int idx = 20;
-    createTrackbar("Slice", window_name, &idx, 48, trackbarChanged);
-    createTrackbar("# Pixels", window_name, &num_superpixels, 1000, trackbarChanged);
+    createTrackbar("Slice", window_name, &idx, depth, trackbarChanged);
+    createTrackbar("# Pixels", window_name, &num_superpixels, 1024, trackbarChanged);
     createTrackbar("# Levels", window_name, &num_levels, 10, trackbarChanged);
     createTrackbar("# Bins", window_name, &num_histogram_bins, 15, trackbarChanged);
     createTrackbar("Prior", window_name, &prior, 5, trackbarChanged);
