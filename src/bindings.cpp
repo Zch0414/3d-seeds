@@ -39,7 +39,8 @@ PYBIND11_MODULE(seeds3d, m) {
                 cv::Mat mat(3, sizes, CV_32FC1, (void*)buf.ptr);
                 self.iterate(mat, num_iterations);
             }, 
-            py::arg("data"), py::arg("num_iterations"))
+            py::arg("data"), py::arg("num_iterations")
+        )
         .def("getLabels", 
             [](SuperpixelSEEDS3D& self) -> py::array_t<int> {
                 cv::Mat labels;
@@ -87,43 +88,25 @@ PYBIND11_MODULE(seeds3d, m) {
                     labels_ptr->ptr<int>(),// Data pointer
                     labels_capsule         // Capsule to keep data alive
                 );
-            });
-        // .def("getLabelContourMask", 
-        //     [](SuperpixelSEEDS3D& self, bool thick_line, int idx) -> py::array_t<unsigned char> {
-        //         cv::Mat mask;
-        //         self.getLabelContourMask(mask, thick_line, idx);
-                
-        //         // Validate data type
-        //         if (mask.type() != CV_8U) {
-        //             throw std::runtime_error("Contour mask must be of type CV_8U (unsigned char)");
-        //         }
-                
-        //         // Create a shared_ptr to manage the mask
-        //         std::shared_ptr<cv::Mat> mask_ptr = std::make_shared<cv::Mat>(mask);
-                
-        //         // Create a capsule to manage the mask's lifetime
-        //         py::capsule mask_capsule(new std::shared_ptr<cv::Mat>(mask_ptr), [](void* c) {
-        //             delete static_cast<std::shared_ptr<cv::Mat>*>(c);
-        //         });
-                
-        //         // Create the NumPy array that shares memory with the 2D cv::Mat
-        //         return py::array_t<unsigned char>(
-        //             { mask.rows, mask.cols },                         // Shape
-        //             { sizeof(unsigned char) * mask.cols, sizeof(unsigned char) }, // Strides
-        //             mask_ptr->ptr<unsigned char>(),                   // Data pointer
-        //             mask_capsule                                       // Capsule to keep data alive
-        //         );
-        //     });
+            }
+        );
 
     m.def("createSuperpixelSEEDS3D", 
-          [](int width, int height, int depth, int channels, 
-          int num_superpixels, int num_levels, int prior, int num_histogram_bins, 
-          bool double_step) -> std::shared_ptr<SuperpixelSEEDS3D> {
-                cv::Ptr<SuperpixelSEEDS3D> ptr = cv::ximgproc::createSuperpixelSEEDS3D(
-                    width, height, depth, channels, num_superpixels,
-                    num_levels, prior, num_histogram_bins, double_step
-                );
-                // Convert cv::Ptr to std::shared_ptr with a custom deleter
-                return std::shared_ptr<SuperpixelSEEDS3D>(ptr.get(), [ptr](SuperpixelSEEDS3D*) mutable { ptr.release(); });
-          });
+        [](int width, int height, int depth, int channels, 
+        int num_superpixels, int num_levels, int prior, int histogram_bins, 
+        bool double_step) -> std::shared_ptr<SuperpixelSEEDS3D> {
+            cv::Ptr<SuperpixelSEEDS3D> ptr = cv::ximgproc::createSuperpixelSEEDS3D(
+                width, height, depth, channels, num_superpixels,
+                num_levels, prior, histogram_bins, double_step
+            );
+            // Convert cv::Ptr to std::shared_ptr with a custom deleter
+            return std::shared_ptr<SuperpixelSEEDS3D>(ptr.get(), [ptr](SuperpixelSEEDS3D*) mutable { ptr.release(); });
+        },
+        py::arg("width"), py::arg("height"), py::arg("depth"), py::arg("channels"),
+        py::arg("num_superpixels"),
+        py::arg("num_levels") = 2,
+        py::arg("prior") = 2,
+        py::arg("histogram_bins") = 15,
+        py::arg("double_step") = false
+    );
 }

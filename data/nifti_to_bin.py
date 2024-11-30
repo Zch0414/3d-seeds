@@ -2,7 +2,7 @@ import numpy as np
 import nibabel as nib
 
 import torch
-from monai.transforms import CropForeground, SpatialPad, Resize
+from monai.transforms import CropForeground, SpatialPad
 
 
 if __name__ == "__main__":

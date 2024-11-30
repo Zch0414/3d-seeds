@@ -242,8 +242,8 @@ void SuperpixelSEEDSImpl::getLabels(OutputArray labels_out)
 void SuperpixelSEEDSImpl::initialize(int num_superpixels, int num_levels)
 {
     /* enforce parameter restrictions */
-    if( num_superpixels < 10 )
-        num_superpixels = 10;
+    if( num_superpixels < 27 )
+        num_superpixels = 27;
     if( num_levels < 2 )
         num_levels = 2;
     int num_superpixels_h = (int)sqrtf((float)num_superpixels * height / width);
