@@ -843,31 +843,31 @@ void SuperpixelSEEDS3DImpl::updateBlocks(int level, float req_confidence)
 int SuperpixelSEEDS3DImpl::goDownOneLevel()
 {
     int old_level = seeds_current_level;
-    int alevel = seeds_current_level - 1;
+    int new_level = seeds_current_level - 1;
 
-    if( alevel < 0 )
+    if( new_level < 0 )
         return -1;
 
     // reset nr_partitions
     memset(nr_partitions, 0, sizeof(int) * nrLabels(seeds_top_level));
 
-    // go through labels of alevel
-    int labels_alevel = nrLabels(alevel);
+    // go through labels of new_level
+    int labels_new_level = nrLabels(new_level);
     //the lowest level (0) has 1 partition, all higher levels are
     //initially partitioned into 4
-    int partitions = alevel ? 8 : 1;
+    int partitions = new_level ? 8 : 1;
 
-    for (int label = 0; label < labels_alevel; ++label)
+    for (int label = 0; label < labels_new_level; ++label)
     {
         // assign parent = parent of old_label
-        int& cur_parent = parent[alevel][label];
+        int& cur_parent = parent[new_level][label];
         int p = parent[old_level][cur_parent];
         cur_parent = p;
 
         nr_partitions[p] += partitions;
     }
 
-    return alevel;
+    return new_level;
 }
 
 void SuperpixelSEEDS3DImpl::updatePixels()
@@ -2045,19 +2045,23 @@ bool SuperpixelSEEDS3DImpl::checkSplit_3d(
     int a211, int a212, int a221, int a222, int a231, int a232,
     int a311, int a312, int a321, int a322, int a331, int a332)
 {   
+    // C^2_5 = 10;
+    if((a222 == a221) && (a222 == a122) && (a222 != a121)) return false;
+    if((a222 == a221) && (a222 == a212) && (a222 != a211)) return false;
+    if((a222 == a221) && (a222 == a322) && (a222 != a321)) return false;
+    if((a222 == a221) && (a222 == a232) && (a222 != a231)) return false;
+    if((a222 == a122) && (a222 == a212) && (a222 != a112)) return false;
+    if((a222 == a212) && (a222 == a322) && (a222 != a312)) return false;
+    if((a222 == a322) && (a222 == a232) && (a222 != a332)) return false;
+    if((a222 == a232) && (a222 == a122) && (a222 != a132)) return false;
+    if((a222 == a122) && (a222 == a322) && ((a222 != a221) || ((a222 != a212) && (a222 != a232)))) return false;
+    if((a222 == a212) && (a222 == a232) && ((a222 != a221) || ((a222 != a122) && (a222 != a322)))) return false;
 
-    if( (a222 != a221) && (a222 == a212) && (a222 == a232) ) return false;
-    if( (a222 != a211) && (a222 == a212) && (a222 == a221) ) return false;
-    if( (a222 != a231) && (a222 == a221) && (a222 == a232) ) return false;
-
-    if( (a222 != a221) && (a222 == a122) && (a222 == a322) ) return false;
-    if( (a222 != a121) && (a222 == a122) && (a222 == a221) ) return false;
-    if( (a222 != a321) && (a222 == a221) && (a222 == a322) ) return false;
-
-    if( (a222 != a112) && (a222 == a122) && (a222 == a212) ) return false;
-    if( (a222 != a132) && (a222 == a122) && (a222 == a232) ) return false;
-    if( (a222 != a312) && (a222 == a212) && (a222 == a322) ) return false;
-    if( (a222 != a332) && (a222 == a232) && (a222 == a322) ) return false;
+    // C^3_5 - 6 = 4;
+    if((a222 == a221) && (a222 == a122) && (a222 == a212) && (a222 != a111)) return false;
+    if((a222 == a221) && (a222 == a212) && (a222 == a322) && (a222 != a311)) return false;
+    if((a222 == a221) && (a222 == a322) && (a222 == a232) && (a222 != a331)) return false;
+    if((a222 == a221) && (a222 == a232) && (a222 == a122) && (a222 != a131)) return false;
 
     return true;
 }
