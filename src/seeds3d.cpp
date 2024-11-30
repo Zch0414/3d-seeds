@@ -241,16 +241,16 @@ void SuperpixelSEEDS3DImpl::getLabels(OutputArray labels_out)
 
 void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
 {
-    int sizes[3] = {depth, height, width};
+    int _mat_size[3] = {depth, height, width};
 
     /* enforce parameter restrictions */
     if( num_superpixels < 10 )
         num_superpixels = 10;
     if( num_levels < 2 )
         num_levels = 2;
-    int num_superpixels_h = (int)cbrtf((float)num_superpixels * (height / width) * (height / depth));
-    int num_superpixels_w = num_superpixels_h * width / height;
-    int num_superpixels_d = num_superpixels_h * depth / height;
+    int num_superpixels_d = (int)cbrtf((float)num_superpixels * (depth / width) * (depth / height));
+    int num_superpixels_h = num_superpixels_d * height / depth;
+    int num_superpixels_w = num_superpixels_d * width / depth;
     seeds_nr_levels = num_levels + 1;
     float seeds_wf, seeds_hf, seeds_df;
     do
@@ -266,13 +266,13 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
     CV_Assert(seeds_nr_levels > 0);
 
     seeds_top_level = seeds_nr_levels - 1;
-    image_bins_mat = Mat(3, sizes, CV_32SC1);
+    image_bins_mat = Mat(3, _mat_size, CV_32SC1);
     image_bins = (unsigned int*)image_bins_mat.data;
 
     // init labels
-    labels_mat = Mat(3, sizes, CV_32SC1);
+    labels_mat = Mat(3, _mat_size, CV_32SC1);
     labels = (int*)labels_mat.data;
-    labels_bottom_mat = Mat(3, sizes, CV_32SC1);
+    labels_bottom_mat = Mat(3, _mat_size, CV_32SC1);
     labels_bottom = (int*)labels_bottom_mat.data;
     parent.resize(seeds_nr_levels);
     parent_pre_init.resize(seeds_nr_levels);
@@ -284,19 +284,19 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
     nr_whd[3 * level] = nr_seeds_w;
     nr_whd[3 * level + 1] = nr_seeds_h;
     nr_whd[3 * level + 2] = nr_seeds_d;
-    parent_mat.push_back(Mat(3, sizes, CV_32SC1));
+    parent_mat.push_back(Mat(3, _mat_size, CV_32SC1));
     parent[level] = (int*)parent_mat.back().data;
-    parent_pre_init_mat.push_back(Mat(3, sizes, CV_32SC1));
+    parent_pre_init_mat.push_back(Mat(3, _mat_size, CV_32SC1));
     parent_pre_init[level] = (int*)parent_pre_init_mat.back().data;
     for (level = 1; level < seeds_nr_levels; level++)
     {
         nr_seeds_w /= 2; // always partitioned in 2x2x2 sub-blocks
         nr_seeds_h /= 2;
         nr_seeds_d /= 2;
-        int seeds_sizes[3] = {nr_seeds_d, nr_seeds_h, nr_seeds_w};
-        parent_mat.push_back(Mat(3, seeds_sizes, CV_32SC1));
+        int _seeds_size[3] = {nr_seeds_d, nr_seeds_h, nr_seeds_w};
+        parent_mat.push_back(Mat(3, _seeds_size, CV_32SC1));
         parent[level] = (int*)parent_mat.back().data;
-        parent_pre_init_mat.push_back(Mat(3, seeds_sizes, CV_32SC1));
+        parent_pre_init_mat.push_back(Mat(3, _seeds_size, CV_32SC1));
         parent_pre_init[level] = (int*)parent_pre_init_mat.back().data;
         nr_whd[3 * level] = nr_seeds_w;
         nr_whd[3 * level + 1] = nr_seeds_h;
@@ -314,8 +314,8 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
             }
         }    
     }
-    int partitions_mat_sizes[3] = {nr_whd[3 * seeds_top_level + 2], nr_whd[3 * seeds_top_level + 1], nr_whd[3 * seeds_top_level]};
-    nr_partitions_mat = Mat(3, partitions_mat_sizes, CV_32SC1);
+    int _partitions_mat_size[3] = {nr_whd[3 * seeds_top_level + 2], nr_whd[3 * seeds_top_level + 1], nr_whd[3 * seeds_top_level]};
+    nr_partitions_mat = Mat(3, _partitions_mat_size, CV_32SC1);
     nr_partitions = (unsigned int*)nr_partitions_mat.data;
 
     //preinit the labels (these are not changed anymore later)
@@ -339,11 +339,11 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
     T_mat.resize(seeds_nr_levels);
     for (level = 0; level < seeds_nr_levels; level++)
     {   
-        int histogram_mat_sizes[3] = {nr_whd[3 * level + 2], nr_whd[3 * level + 1], nr_whd[3 * level]*histogram_size_aligned};
-        histogram_mat[level] = Mat(3, histogram_mat_sizes, CV_32FC1);
+        int _histogram_mat_size[3] = {nr_whd[3 * level + 2], nr_whd[3 * level + 1], nr_whd[3 * level]*histogram_size_aligned};
+        histogram_mat[level] = Mat(3, _histogram_mat_size, CV_32FC1);
         histogram[level] = (HISTN*)histogram_mat[level].data;
-        int T_mat_sizes[3] = {nr_whd[3 * level + 2], nr_whd[3 * level + 1], nr_whd[3 * level]};
-        T_mat[level] = Mat(3, T_mat_sizes, CV_32FC1);
+        int _T_mat_size[3] = {nr_whd[3 * level + 2], nr_whd[3 * level + 1], nr_whd[3 * level]};
+        T_mat[level] = Mat(3, _T_mat_size, CV_32FC1);
         T[level] = (HISTN*)T_mat[level].data;
     }
 }
