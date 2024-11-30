@@ -43,6 +43,7 @@ Your workspace should like:
 The following command should be executed within the **seeds3d/ (this repository)**. So first:
 ```
 > cd seeds3d
+> rm -rf .git
 ```
 
 ### CMakeLists.txt
