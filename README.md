@@ -175,5 +175,5 @@ Try SEEDS3D demo with the following command:
 > python seeds3d_sample.py
 ```
 
-This will generate a your/path/to/seeds3d/seeds3d/data/results_nii.nii.gz file.
+This will generate a results.nii.gz file in the /your/path/to/seeds3d/seeds3d/samples/seeds3d-python.
 You can visualize it with 3D Slicer.
