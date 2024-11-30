@@ -41,8 +41,8 @@ int main()
     std::vector<float> data(depth * height * width);
     file.read(reinterpret_cast<char *>(data.data()), depth * height * width * sizeof(float));
     file.close();
-    int img_sizes[3] = {depth, height, width};
-    Mat img_data = Mat(3, img_sizes, CV_32FC1, data.data());
+    int _img_size[3] = {depth, height, width};
+    Mat img_data = Mat(3, _img_size, CV_32FC1, data.data());
     Mat frame(height, width, CV_8UC1);
 
     namedWindow(window_name, 0);
@@ -102,7 +102,6 @@ int main()
         // Write the data directly from the Mat object
         out_file.write(reinterpret_cast<char*>((int*)labels.data), labels.total() * labels.elemSize());
         out_file.close();
-
         std::cout << "3D Mat data saved successfully!" << std::endl;
 
         // // /* get the contours for displaying */
