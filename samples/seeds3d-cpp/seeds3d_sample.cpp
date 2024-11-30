@@ -28,10 +28,9 @@ void trackbarChanged(int, void *)
 
 int main()
 {
-
-    int width = 192;
-    int height = 192;
-    int depth = 48;
+    int width = 160;
+    int height = 160;
+    int depth = 160;
 
     std::ifstream file("/Users/Zach/Zch/Research/seeds3d/seeds3d/data/input.bin", std::ios::binary);
     if (!file.is_open())
@@ -50,11 +49,11 @@ int main()
     int num_iterations = 4;
     int prior = 2;
     bool double_step = false;
-    int num_superpixels = 400;
+    int num_superpixels = 512;
     int num_levels = 4;
     int num_histogram_bins = 5;
-    int idx = 20;
-    createTrackbar("Slice", window_name, &idx, depth, trackbarChanged);
+    int idx = 1;
+    createTrackbar("Slice", window_name, &idx, depth-1, trackbarChanged);
     createTrackbar("# Pixels", window_name, &num_superpixels, 1024, trackbarChanged);
     createTrackbar("# Levels", window_name, &num_levels, 10, trackbarChanged);
     createTrackbar("# Bins", window_name, &num_histogram_bins, 15, trackbarChanged);
@@ -64,7 +63,6 @@ int main()
     Ptr<SuperpixelSEEDS3D> seeds;
     Mat mask;
     int display_mode = 0;
-
     for (;;)
     {
         if (!init)
@@ -110,32 +108,7 @@ int main()
         // // /* get the contours for displaying */
         seeds->getLabelContourMask(mask, false, idx);
         result.setTo(Scalar(0, 0, 255), mask);
-
-        // // /* display output */
-        switch (display_mode)
-        {
-        case 0: // superpixel contours
-            imshow(window_name, result);
-            break;
-        case 1: // mask
-            imshow(window_name, mask);
-            break;
-            // case 2: //labels array
-            // {
-            //     // use the last x bit to determine the color. Note that this does not
-            //     // guarantee that 2 neighboring superpixels have different colors.
-            //     const int num_label_bits = 2;
-            //     labels &= (1 << num_label_bits) - 1;
-            //     labels *= 1 << (16 - num_label_bits);
-            //     imshow(window_name, labels);
-            // }
-            break;
-        }
-
-        int c = waitKey(1000);
-        if ((c & 255) == 'q' || c == 'Q' || (c & 255) == 27)
-            break;
-        else if ((c & 255) == ' ')
-            display_mode = (display_mode + 1) % 3;
+        imshow(window_name, result);
+        int c = waitKey(2500);
     }
 }
