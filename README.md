@@ -2,14 +2,14 @@
 
 ## Build Work Space
 
-Build the work space with the following command:
+**Build the work space with the following command:**
 ```
 > mkdir seeds3d && cd seeds3d
 ```
 
 ## OpenCV C++ Installation (in current directory)
 
-Build OpenCV with the following command (https://thecodinginterface.com/blog/opencv-cpp-vscode/):
+**Build OpenCV with the following command (https://thecodinginterface.com/blog/opencv-cpp-vscode/):**
 ```
 > git clone https://github.com/opencv/opencv.git (4.10.84)
 > git clone https://github.com/opencv/opencv_contrib.git (4.10.84)
@@ -27,12 +27,12 @@ Build OpenCV with the following command (https://thecodinginterface.com/blog/ope
 
 ## SEEDS3D (C++)
 
-First, clone this repository with the following command:
+**First, clone this repository with the following command:**
 ```
 > git clone git@github.com:Zch0414/seeds3d.git
 ```
 
-Your workspace should like:
+**Your workspace should like:**
 - seeds3d/
   - build_opencv/
   - install_opencv/
@@ -40,7 +40,7 @@ Your workspace should like:
   - opencv_contrib/
   - **seeds3d/ (this repository)**
     
-The following command should be executed within the **seeds3d/ (this repository)**. So first:
+**The following command should be executed within the **seeds3d/ (this repository)**. So first:**
 ```
 > cd seeds3d
 > rm -rf .git
@@ -50,7 +50,7 @@ The following command should be executed within the **seeds3d/ (this repository)
 
 Here are CMakeLists templates for Mac and Linux:
 
-1. Mac samples/mat/CMakeLists.txt:
+1. **Mac samples/mat/CMakeLists.txt:**
 ```
 > cmake_minimum_required(VERSION 2.8)
 > project(test_demo)
@@ -63,7 +63,7 @@ Here are CMakeLists templates for Mac and Linux:
 > target_link_libraries(test_demo ${OpenCV_LIBS})
 ```
 
-2. Linux (gcc/10.3.0) samples/mat/CMakeLists.txt:
+2. **Linux (gcc/10.3.0) samples/mat/CMakeLists.txt:**
 ```
 > cmake_minimum_required(VERSION 3.10)
 > project(test_demo)
@@ -80,7 +80,7 @@ Here are CMakeLists templates for Mac and Linux:
 
 ### Test OpenCV
 
-Test Opencv (C++) with the following command:
+**Test Opencv (C++) with the following command:**
 ```
 cd samples/mat
 > [manually modify] CMakeLists.txt
@@ -92,7 +92,7 @@ cd samples/mat
 
 ### SEEDS Demo (OpenCV && Only Tested on Mac)
 
-Try SEEDS demo with the following command:
+**Try SEEDS demo with the following command:**
 ```
 cd samples/seeds-opencv-cpp
 > [manually modify] CMakeLists.txt
@@ -106,14 +106,17 @@ Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp*
 
 ### SEEDS3D Demo (Only Tested on Mac)
 
-Prepare input with the following command:
+**Prepare input with the following command:**
 ```
 > cd data
 > python nifti_to_array.py
 > cd ..
 ```
 
-Run SEEDS3D (C++) with the following command:
+This will give you input.bin, and input.nii.gz for further visualization purposes. 
+Both files will be saved in /your/path/to/seeds3d/seeds3d/data directory.
+
+**Run SEEDS3D (C++) with the following command:**
 ```
 cd samples/seeds3d-cpp
 > [manually modify] CMakeLists.txt
@@ -128,20 +131,20 @@ cd samples/seeds3d-cpp
 This will provide an interactive window where you can adjust various hyperparameters in the SEEDS algorithm. 
 Additionally, it will save result.bin in the /your/path/to/seeds3d/seeds3d/data directory.
 
-you can get a NIfTI file using the following command:
+**You can get a NIfTI file using the following command:**
 ```
 > cd data
 > python bin_to_nifti.py
 > cd ..
 ```
 
-This will generate a results_bin.nii.gz file, which can be visualized using 3D Slicer.
+This will generate a result.nii.gz file, bound with input.nii.gz, which can be visualized with 3D Slicer.
 
 ## SEEDS3D (Python)
 
 ### Create Python Environment
 
-Create the conda environment with the following command:
+**Create the conda environment with the following command:**
 ```
 > conda env create -f environment.yaml
 > conda activate seeds3d
@@ -149,7 +152,7 @@ Create the conda environment with the following command:
 
 ### SEEDS Demo (OpenCV && Only Tested on Mac)
 
-Try SEEDS demo with the following command:
+**Try SEEDS demo with the following command:**
 ```
 > cd samples/seeds-opencv-python
 > python seeds.py
@@ -157,7 +160,7 @@ Try SEEDS demo with the following command:
 
 ### SEEDS3D Installation
 
-After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:
+**After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:**
 ```
 [manually modify] setup.py:#8: /your/path/to/seeds3d/install_opencv/include/opencv4
 [manually modify] setup.py:#9
@@ -170,11 +173,11 @@ After activating the "seeds3d" environment, you can install the seeds3d package 
 
 ### SEEDS3D Demo:
 
-Try SEEDS3D demo with the following command:
+**Try SEEDS3D demo with the following command:**
 ```
 > cd samples/seeds3d-python
 > python seeds3d_sample.py
 ```
 
-This will generate a results.nii.gz file in the /your/path/to/seeds3d/seeds3d/samples/seeds3d-python.
-You can visualize it with 3D Slicer.
+This will generate a result.nii.gz file in the /your/path/to/seeds3d/seeds3d/samples/seeds3d-python.
+Bound with /your/path/to/seeds3d/seeds3d/data/input.nii.gz, you can visualize them with 3D Slicer.
