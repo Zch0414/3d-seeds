@@ -34,7 +34,7 @@ if __name__ == "__main__":
     padder = SpatialPad(spatial_size=spatial_size)
     img_data = padder(img_data)
     
-    img_data = img_data.astype(np.float32).transpose((2, 0, 1)) # visualize the axial space.
+    img_data = img_data.astype(np.float32).transpose((2, 0, 1)) # visualize the axial space in seeds3d-cpp.
     img_data.tofile('./input.bin')
     affine = np.array([
                 [-1, 0, 0, 0], 
