@@ -9,4 +9,5 @@ opencv_contrib/
 .* 
 ! .gitignore
 seeds3d.egg-info/
-UM/
+data_sup/
+samples/seeds3d-python/result.nii.gz
