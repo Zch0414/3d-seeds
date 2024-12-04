@@ -54,6 +54,7 @@ if __name__ == "__main__":
     img_data = padder(img_data)
     img_data = torch.FloatTensor(img_data)
     img_data = img_data.squeeze().numpy()
+    
     img_data = img_data.astype(np.float32).transpose((2, 0, 1))
     print(f'Array shape: {img_data.shape}; Max value: {img_data.max()}; Min value: {img_data.min()}; Type: {img_data.dtype}')
     img_data.tofile('./input.bin')
