@@ -10,31 +10,10 @@ if __name__ == "__main__":
 
     img = nib.load(file_path)
     img_data = img.get_fdata()
-    print(f"Shape of raw data:{img_data.shape}")
     affine = img.affine
+    spacing = np.sqrt(np.sum(affine[:3, :3] ** 2, axis=0))
     orientation = nib.orientations.aff2axcodes(affine)
-
-    # assert the orientation is ['L', 'P', 'S']
-    orientation_transpose = []
-    try:
-        orientation_transpose.append(orientation.index('L'))
-    except ValueError:
-        orientation_transpose.append(orientation.index('R'))
-    try:
-        orientation_transpose.append(orientation.index('P'))
-    except ValueError:
-        orientation_transpose.append(orientation.index('A'))
-    try:
-        orientation_transpose.append(orientation.index('S'))
-    except ValueError:
-        orientation_transpose.append(orientation.index('I'))
-    img_data = np.transpose(img_data, orientation_transpose)
-    if 'R' in orientation:
-        img_data = img_data[::-1, :, :]
-    if 'A' in orientation:
-        img_data = img_data[:, ::-1, :]
-    if 'I' in orientation:
-        img_data = img_data[:, :, ::-1]
+    print(f"Raw data: shape({img_data.shape}); spacing({spacing}); orientation({orientation})")
 
     # clip 0.5% ~ 99.5% then project to 0 ~ 255
     lower = np.percentile(img_data, 0.5)
@@ -42,23 +21,21 @@ if __name__ == "__main__":
     img_data = np.clip(img_data, lower, upper)
     img_data = (img_data - img_data.min()) / (img_data.max() - img_data.min() + 1e-8) * 255
 
-    # prepocessing, assert the first dimension is channel
+    # assert the first dimension is channel
     img_data = img_data[None, ...]
+    
+    # foreground crop
     img_data = torch.FloatTensor(img_data)
     foreground_cropper = CropForeground(allow_smaller=True)
     img_data = foreground_cropper(img_data)
-    img_data = torch.FloatTensor(img_data)
-    longest_side = torch.tensor(img_data.size()[1:3]).max().item()
-    spatial_size = [longest_side, longest_side, longest_side]
+
+    # pad
+    spatial_size = [160, 160, 160]
     padder = SpatialPad(spatial_size=spatial_size)
     img_data = padder(img_data)
-    img_data = torch.FloatTensor(img_data)
-    img_data = img_data.squeeze().numpy()
     
-    img_data = img_data.astype(np.float32).transpose((2, 0, 1))
-    print(f'Array shape: {img_data.shape}; Max value: {img_data.max()}; Min value: {img_data.min()}; Type: {img_data.dtype}')
+    img_data = img_data.astype(np.float32).transpose((2, 0, 1)) # visualize the axial space.
     img_data.tofile('./input.bin')
-
     affine = np.array([
                 [-1, 0, 0, 0], 
                 [0, -1, 0, 0], 
