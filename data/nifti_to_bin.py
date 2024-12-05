@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # to numpy
     img_data = torch.FloatTensor(img_data).squeeze().numpy()
-    img_data = img_data.astype(np.float32).transpose((2, 0, 1)) # visualize the axial space in seeds3d-cpp.
+    img_data = img_data.astype(np.float32).transpose((2, 1, 0)) # visualize the axial space in seeds3d-cpp.
     
     # save
     img_data.tofile('./input.bin')
@@ -46,6 +46,6 @@ if __name__ == "__main__":
                 [0, 0, 1, 0],  
                 [0, 0, 0, 1]
             ])
-    img_nii = img_data.transpose(1, 2, 0)
+    img_nii = img_data.transpose(2, 1, 0)
     img_nii = nib.Nifti1Image(img_nii, affine)
     nib.save(img_nii, './input.nii.gz')

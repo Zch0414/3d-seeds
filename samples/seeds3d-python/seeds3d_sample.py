@@ -7,7 +7,7 @@ if __name__ == "__main__":
     # Load your 3D data
     img = nib.load('../../data/input.nii.gz')
     img_data = img.get_fdata()
-    img_data = np.asarray(img_data).astype(np.float32).transpose((2, 0, 1))
+    img_data = np.asarray(img_data).astype(np.float32).transpose((2, 1, 0))
     img_data = np.ascontiguousarray(img_data, dtype=np.float32)
     
     # Normalize the data if necessary
@@ -29,12 +29,12 @@ if __name__ == "__main__":
     )
 
     # Iterate
-    seeds.iterate(data=img_data, num_iterations=10)
+    seeds.iterate(data=img_data, num_iterations=12)
     # Get the labels
     labels = seeds.getLabels()
 
     # Save labels
-    labels = labels.transpose(1, 2, 0)
+    labels = labels.transpose(2, 1, 0)
     affine = np.array([
         [-1, 0, 0, 0], 
         [0, -1, 0, 0], 
