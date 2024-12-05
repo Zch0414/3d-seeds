@@ -33,8 +33,12 @@ if __name__ == "__main__":
     spatial_size = [160, 160, 160]
     padder = SpatialPad(spatial_size=spatial_size)
     img_data = padder(img_data)
-    
+
+    # to numpy
+    img_data = torch.FloatTensor(img_data).squeeze().numpy()
     img_data = img_data.astype(np.float32).transpose((2, 0, 1)) # visualize the axial space in seeds3d-cpp.
+    
+    # save
     img_data.tofile('./input.bin')
     affine = np.array([
                 [-1, 0, 0, 0], 
