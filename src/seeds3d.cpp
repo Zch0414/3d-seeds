@@ -248,9 +248,9 @@ void SuperpixelSEEDS3DImpl::initialize(int num_superpixels, int num_levels)
         num_superpixels = 10;
     if( num_levels < 2 )
         num_levels = 2;
-    int num_superpixels_d = (int)cbrtf((float)num_superpixels * (depth / width) * (depth / height));
-    int num_superpixels_h = num_superpixels_d * height / depth;
-    int num_superpixels_w = num_superpixels_d * width / depth;
+    int num_superpixels_d = (int)cbrtf((float)num_superpixels * ((float)depth / (float)width) * ((float)depth / (float)height));
+    int num_superpixels_h = (int)((float)num_superpixels_d * (float)height / (float)depth);
+    int num_superpixels_w = (int)((float)num_superpixels_d * (float)width / (float)depth);
     seeds_nr_levels = num_levels + 1;
     float seeds_wf, seeds_hf, seeds_df;
     do
