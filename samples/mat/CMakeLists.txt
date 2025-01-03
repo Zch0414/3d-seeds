@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 14)
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 add_executable(mat main.cpp)
-target_link_libraries(mat ${OpenCV_LIBS}
+target_link_libraries(mat ${OpenCV_LIBS})
