@@ -53,20 +53,20 @@ Here are CMakeLists templates for Mac and Linux:
 1. **Mac samples/mat/CMakeLists.txt:**
 ```
 > cmake_minimum_required(VERSION 2.8)
-> project(demo)
+> project(mat)
 > set(OpenCV_DIR /your/path/to/3d_seeds/install_opencv/lib/cmake/opencv4)
 > set(CMAKE_CXX_STANDARD 14)
 > set(CMAKE_BUILD_TYPE Debug)
 > find_package( OpenCV REQUIRED )
 > include_directories(${OpenCV_INCLUDE_DIRS})
-> add_executable(demo ${SOURCES})
-> target_link_libraries(demo ${OpenCV_LIBS})
+> add_executable(mat ${SOURCES})
+> target_link_libraries(mat ${OpenCV_LIBS})
 ```
 
 2. **Linux (gcc/10.3.0) samples/mat/CMakeLists.txt:**
 ```
 > cmake_minimum_required(VERSION 3.10)
-> project(demo)
+> project(mat)
 > set(CMAKE_PREFIX_PATH "/your/path/to/3d_seeds/install_opencv" ${CMAKE_PREFIX_PATH})
 > set(OpenCV_DIR /your/path/to/3d_seeds/install_opencv/share/opencv4)
 > set(CMAKE_CXX_STANDARD 14)
@@ -74,8 +74,8 @@ Here are CMakeLists templates for Mac and Linux:
 > set(CMAKE_CXX_EXTENSIONS OFF)
 > find_package( OpenCV REQUIRED )
 > include_directories( ${OpenCV_INCLUDE_DIRS} )
-> add_executable(demo main.cpp)
-> target_link_libraries(demo ${OpenCV_LIBS})
+> add_executable(mat main.cpp)
+> target_link_libraries(mat ${OpenCV_LIBS})
 ```
 
 ### Test OpenCV
@@ -145,25 +145,25 @@ This will generate a result.nii.gz file, bound with input.nii.gz, which can be v
 **Create the conda environment with the following command:**
 ```
 > conda env create -f environment.yaml
-> conda activate seeds3d
+> conda activate 3d_seeds
 ```
 
 ### SEEDS Demo (OpenCV && Only Tested on Mac)
 
 **Try SEEDS demo with the following command:**
 ```
-> cd samples/seeds-opencv-python
+> cd samples/opencv-python-seeds
 > python seeds.py
 ```
 
 ### 3D SEEDS Installation
 
-**After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:**
+**After activating the "3d_seeds" environment, you can install the python_3d_seeds package using the following commands:**
 ```
-[manually modify] setup.py:#8: /your/path/to/seeds3d/install_opencv/include/opencv4
+[manually modify] setup.py:#8: /your/path/to/3d_seeds/install_opencv/include/opencv4
 [manually modify] setup.py:#9
-  - (For Mac): /your/path/to/seeds3d/install_opencv/lib
-  - (For Linux): /your/path/to/seeds3d/install_opencv/lib64
+  - (For Mac): /your/path/to/3d_seeds/install_opencv/lib
+  - (For Linux): /your/path/to/3d_seeds/install_opencv/lib64
 > python setup.py clean --all
 > python setup.py build
 > pip install .
@@ -173,9 +173,9 @@ This will generate a result.nii.gz file, bound with input.nii.gz, which can be v
 
 **Try 3D SEEDS demo with the following command:**
 ```
-> cd samples/seeds3d-python
-> python seeds3d_sample.py
+> cd samples/python-3d-seeds
+> python seeds.py
 ```
 
-This will generate a result.nii.gz file in the /your/path/to/seeds3d/seeds3d/samples/seeds3d-python.
-Bound with /your/path/to/seeds3d/seeds3d/data/input.nii.gz, you can visualize them with 3D Slicer.
+This will generate a result.nii.gz file in the /your/path/to/3d_seeds/3d_seeds/samples/python-3d-seeds.
+Bound with /your/path/to/3d_seeds/3d_seeds/data/input.nii.gz, you can visualize them with 3D Slicer.
