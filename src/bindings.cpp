@@ -1,17 +1,17 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
-#include "seeds3d.hpp"
+#include "seeds.hpp"
 
 namespace py = pybind11;
 using namespace cv;
 using namespace cv::ximgproc;
 
-PYBIND11_MODULE(seeds3d, m) {
-    py::class_<SuperpixelSEEDS3D, std::shared_ptr<SuperpixelSEEDS3D>>(m, "SuperpixelSEEDS3D")
-        .def("getNumberOfSuperpixels", &SuperpixelSEEDS3D::getNumberOfSuperpixels)
+PYBIND11_MODULE(python_3d_seeds, m) {
+    py::class_<SupervoxelSEEDS, std::shared_ptr<SupervoxelSEEDS>>(m, "SupervoxelSEEDS")
+        .def("getNumberOfSuperpixels", &SupervoxelSEEDS::getNumberOfSuperpixels)
         .def("iterate", 
-            [](SuperpixelSEEDS3D& self, py::array_t<float> data, int num_iterations) {
+            [](SupervoxelSEEDS& self, py::array_t<float> data, int num_iterations) {
                 // // Validate input dimensions and type
                 // if (data.ndim() != 3) {
                 //     throw std::runtime_error("Input data must be a 3D NumPy array");
@@ -42,7 +42,7 @@ PYBIND11_MODULE(seeds3d, m) {
             py::arg("data"), py::arg("num_iterations")
         )
         .def("getLabels", 
-            [](SuperpixelSEEDS3D& self) -> py::array_t<int> {
+            [](SupervoxelSEEDS& self) -> py::array_t<int> {
                 cv::Mat labels;
                 self.getLabels(labels);
                  
@@ -91,16 +91,16 @@ PYBIND11_MODULE(seeds3d, m) {
             }
         );
 
-    m.def("createSuperpixelSEEDS3D", 
+    m.def("createSupervoxelSEEDS", 
         [](int width, int height, int depth, int channels, 
         int num_superpixels, int num_levels, int prior, int histogram_bins, 
-        bool double_step) -> std::shared_ptr<SuperpixelSEEDS3D> {
-            cv::Ptr<SuperpixelSEEDS3D> ptr = cv::ximgproc::createSuperpixelSEEDS3D(
+        bool double_step) -> std::shared_ptr<SupervoxelSEEDS> {
+            cv::Ptr<SupervoxelSEEDS> ptr = cv::ximgproc::createSupervoxelSEEDS(
                 width, height, depth, channels, num_superpixels,
                 num_levels, prior, histogram_bins, double_step
             );
             // Convert cv::Ptr to std::shared_ptr with a custom deleter
-            return std::shared_ptr<SuperpixelSEEDS3D>(ptr.get(), [ptr](SuperpixelSEEDS3D*) mutable { ptr.release(); });
+            return std::shared_ptr<SupervoxelSEEDS>(ptr.get(), [ptr](SupervoxelSEEDS*) mutable { ptr.release(); });
         },
         py::arg("width"), py::arg("height"), py::arg("depth"), py::arg("channels"),
         py::arg("num_superpixels"),

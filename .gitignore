@@ -8,6 +8,5 @@ opencv_contrib/
 **/build/
 .* 
 ! .gitignore
-seeds3d.egg-info/
+*.egg-info/
 data_sup/
-samples/seeds3d-python/result.nii.gz

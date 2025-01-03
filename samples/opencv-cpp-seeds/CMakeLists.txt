@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 2.8)
+project(demo)
+set(OpenCV_DIR /Users/Zach/Zch/Research/3d_seeds/install_opencv/lib/cmake/opencv4)
+set(CMAKE_CXX_STANDARD 14)
+find_package( OpenCV REQUIRED )
+include_directories(${OpenCV_INCLUDE_DIRS})
+add_executable(demo seeds.cpp)
+target_link_libraries(demo ${OpenCV_LIBS})
