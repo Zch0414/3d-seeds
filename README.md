@@ -4,7 +4,7 @@
 
 **Build the work space with the following command:**
 ```
-> mkdir seeds3d && cd seeds3d
+> mkdir 3d_seeds && cd 3d_seeds
 ```
 
 ## OpenCV C++ Installation (in current directory)
@@ -29,20 +29,20 @@
 
 **First, clone this repository with the following command:**
 ```
-> git clone git@github.com:Zch0414/seeds3d.git
+> git clone git@github.com:Zch0414/3d_seeds.git
 ```
 
 **Your workspace should like:**
-- seeds3d/
+- 3d_seeds/
   - build_opencv/
   - install_opencv/
   - opencv/
   - opencv_contrib/
-  - **seeds3d/ (this repository)**
+  - **3d_seeds/ (this repository)**
     
-**The following command should be executed within the **seeds3d/ (this repository)**. So first:**
+**The following command should be executed within the **3d_seeds/ (this repository)**. So first:**
 ```
-> cd seeds3d
+> cd 3d_seeds
 > rm -rf .git
 ```
 
@@ -53,29 +53,29 @@ Here are CMakeLists templates for Mac and Linux:
 1. **Mac samples/mat/CMakeLists.txt:**
 ```
 > cmake_minimum_required(VERSION 2.8)
-> project(test_demo)
-> set(OpenCV_DIR /your/path/to/seeds3d/install_opencv/lib/cmake/opencv4)
+> project(demo)
+> set(OpenCV_DIR /your/path/to/3d_seeds/install_opencv/lib/cmake/opencv4)
 > set(CMAKE_CXX_STANDARD 14)
 > set(CMAKE_BUILD_TYPE Debug)
 > find_package( OpenCV REQUIRED )
 > include_directories(${OpenCV_INCLUDE_DIRS})
-> add_executable(test_demo ${SOURCES})
-> target_link_libraries(test_demo ${OpenCV_LIBS})
+> add_executable(demo ${SOURCES})
+> target_link_libraries(demo ${OpenCV_LIBS})
 ```
 
 2. **Linux (gcc/10.3.0) samples/mat/CMakeLists.txt:**
 ```
 > cmake_minimum_required(VERSION 3.10)
-> project(test_demo)
-> set(CMAKE_PREFIX_PATH "/your/path/to/seeds3d/install_opencv" ${CMAKE_PREFIX_PATH})
-> set(OpenCV_DIR /your/path/to/seeds3d/install_opencv/share/opencv4)
+> project(demo)
+> set(CMAKE_PREFIX_PATH "/your/path/to/3d_seeds/install_opencv" ${CMAKE_PREFIX_PATH})
+> set(OpenCV_DIR /your/path/to/3d_seeds/install_opencv/share/opencv4)
 > set(CMAKE_CXX_STANDARD 14)
 > set(CMAKE_CXX_STANDARD_REQUIRED ON)
 > set(CMAKE_CXX_EXTENSIONS OFF)
 > find_package( OpenCV REQUIRED )
 > include_directories( ${OpenCV_INCLUDE_DIRS} )
-> add_executable(test_demo main.cpp)
-> target_link_libraries(test_demo ${OpenCV_LIBS})
+> add_executable(demo main.cpp)
+> target_link_libraries(demo ${OpenCV_LIBS})
 ```
 
 ### Test OpenCV
@@ -87,22 +87,20 @@ cd samples/mat
 > mkdir build && cd build
 > cmake ..
 > make
-> ./test_demo
+> ./mat
 ```
 
 ### SEEDS Demo (OpenCV && Only Tested on Mac)
 
 **Try SEEDS demo with the following command:**
 ```
-cd samples/seeds-opencv-cpp
+cd samples/opencv-cpp-seeds
 > [manually modify] CMakeLists.txt
 > mkdir build && cd build
 > cmake ..
 > make
-> ./seeds_demo /your/path/to/seeds3d/seeds3d/data/00.jpg
+> ./demo /your/path/to/3d_seeds/3d_seeds/data/00.jpg
 ```
-
-Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp**. It does not depend on ximgproc and can be used for debugging purposes.
 
 ### 3D SEEDS Demo (Only Tested on Mac)
 
@@ -114,22 +112,22 @@ Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp*
 ```
 
 This will give you input.bin, and input.nii.gz for further visualization purposes. 
-Both files will be saved in /your/path/to/seeds3d/seeds3d/data directory.
+Both files will be saved in /your/path/to/3d_seeds/3d_seeds/data directory.
 
 **Run 3D SEEDS (C++) with the following command:**
 ```
-cd samples/seeds3d-cpp
+cd samples/cpp_3d_seeds
 > [manually modify] CMakeLists.txt
-> [manually modify] seeds3d_sample.cpp:#35:/your/path/to/seeds3d/seeds3d/data/input.bin
-> [manually modify] seeds3d_sample.cpp:#97:/your/path/to/seeds3d/seeds3d/data/result.bin
+> [manually modify] seeds.cpp:#35:/your/path/to/3d_seeds/3d_seeds/data/input.bin
+> [manually modify] seeds.cpp:#97:/your/path/to/3d_seeds/3d_seeds/data/result.bin
 > mkdir build && cd build
 > cmake ..
 > make
-> ./seeds3d_sample
+> ./demo
 ```
 
 This will provide an interactive window where you can adjust various hyperparameters in the SEEDS algorithm. 
-Additionally, it will save result.bin in the /your/path/to/seeds3d/seeds3d/data directory.
+Additionally, it will save result.bin in the /your/path/to/3d_seeds/3d_seeds/data directory.
 
 **You can get a NIfTI file using the following command:**
 ```
