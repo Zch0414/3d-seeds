@@ -1,4 +1,4 @@
-# SEEDS3D
+# 3D SEEDS
 
 ## Build Work Space
 
