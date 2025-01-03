@@ -25,7 +25,7 @@
 > make install
 ```
 
-## SEEDS3D (C++)
+## 3D SEEDS (C++)
 
 **First, clone this repository with the following command:**
 ```
@@ -104,7 +104,7 @@ cd samples/seeds-opencv-cpp
 
 Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp**. It does not depend on ximgproc and can be used for debugging purposes.
 
-### SEEDS3D Demo (Only Tested on Mac)
+### 3D SEEDS Demo (Only Tested on Mac)
 
 **Prepare input with the following command:**
 ```
@@ -116,7 +116,7 @@ Note that a similar implementation can be found in **/seeds3d/samples/seeds-cpp*
 This will give you input.bin, and input.nii.gz for further visualization purposes. 
 Both files will be saved in /your/path/to/seeds3d/seeds3d/data directory.
 
-**Run SEEDS3D (C++) with the following command:**
+**Run 3D SEEDS (C++) with the following command:**
 ```
 cd samples/seeds3d-cpp
 > [manually modify] CMakeLists.txt
@@ -140,7 +140,7 @@ Additionally, it will save result.bin in the /your/path/to/seeds3d/seeds3d/data 
 
 This will generate a result.nii.gz file, bound with input.nii.gz, which can be visualized with 3D Slicer.
 
-## SEEDS3D (Python)
+## 3D SEEDS (Python)
 
 ### Create Python Environment
 
@@ -158,7 +158,7 @@ This will generate a result.nii.gz file, bound with input.nii.gz, which can be v
 > python seeds.py
 ```
 
-### SEEDS3D Installation
+### 3D SEEDS Installation
 
 **After activating the "seeds3d" environment, you can install the seeds3d package using the following commands:**
 ```
@@ -171,9 +171,9 @@ This will generate a result.nii.gz file, bound with input.nii.gz, which can be v
 > pip install .
 ```
 
-### SEEDS3D Demo:
+### 3D SEEDS Demo:
 
-**Try SEEDS3D demo with the following command:**
+**Try 3D SEEDS demo with the following command:**
 ```
 > cd samples/seeds3d-python
 > python seeds3d_sample.py
