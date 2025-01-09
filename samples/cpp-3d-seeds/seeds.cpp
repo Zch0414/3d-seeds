@@ -32,7 +32,7 @@ int main()
     int height = 160;
     int depth = 160;
 
-    std::ifstream file("/Users/Zach/Zch/Research/3d_seeds/3d_seeds/data/input.bin", std::ios::binary);
+    std::ifstream file("/Users/Zach/Zch/Research/3d-seeds/3d-seeds/data/input.bin", std::ios::binary);
     if (!file.is_open())
     {
         std::cerr << "Error opening file!" << std::endl;
@@ -93,7 +93,7 @@ int main()
         Mat labels;
         seeds->getLabels(labels);
 
-        std::ofstream out_file("/Users/Zach/Zch/Research/3d_seeds/3d_seeds/data/result.bin", std::ios::out | std::ios::binary);
+        std::ofstream out_file("/Users/Zach/Zch/Research/3d-seeds/3d-seeds/data/result.bin", std::ios::out | std::ios::binary);
         if (!out_file) {
             std::cerr << "Error opening file for writing!" << std::endl;
             return -1;
