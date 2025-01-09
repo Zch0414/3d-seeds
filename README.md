@@ -160,8 +160,8 @@ This will generate a result.nii.gz file, bound with input.nii.gz, which can be v
 
 **After activating the "3d-seeds" environment, you can install the python_3d-seeds package using the following commands:**
 ```
-[manually modify] setup.py:#8: /your/path/to/3d-seeds/install_opencv/include/opencv4
-[manually modify] setup.py:#9
+[manually modify] setup.py:#6: /your/path/to/3d-seeds/install_opencv/include/opencv4
+[manually modify] setup.py:#7
   - (For Mac): /your/path/to/3d-seeds/install_opencv/lib
   - (For Linux): /your/path/to/3d-seeds/install_opencv/lib64
 > python setup.py clean --all
