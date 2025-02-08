@@ -5,6 +5,8 @@
 > <sup>1</sup>University of Michigan, <sup>2</sup>Beijing University of Posts and Telecommunications\
 > [![arXiv](https://img.shields.io/badge/arXiv%20paper-2502.02409-b31b1b.svg)](https://arxiv.org/abs/2502.02409)&nbsp;
 
+<p align="center"><img src="https://github.com/Zch0414/3d-seeds/blob/master/data/vis-4096.png" width=96% height=96% class="center"></p>
+
 ## Build Work Space
 
 **Build the work space with the following command:**
