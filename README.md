@@ -2,6 +2,7 @@
 > Official implementation of the following paper:\
 > Extending SEEDS to a Supervoxel Algorithm for Medical Image Analysis\
 > [![arXiv](https://img.shields.io/badge/arXiv%20paper-2502.02409-b31b1b.svg)](https://arxiv.org/abs/2502.02409)&nbsp;
+
 ## Build Work Space
 
 **Build the work space with the following command:**
@@ -181,3 +182,14 @@ This will generate a result.nii.gz file, bound with input.nii.gz, which can be v
 
 This will generate a result.nii.gz file in the /your/path/to/3d-seeds/3d-seeds/samples/python-3d-seeds.
 Bound with /your/path/to/3d-seeds/3d-seeds/data/input.nii.gz, you can visualize them with 3D Slicer.
+
+## Citation
+If you find this repository helpful, please consider citing:
+```
+@article{zhao2025extending,
+  title={Extending SEEDS to a Supervoxel Algorithm for Medical Image Analysis},
+  author={Zhao, Chenhui and Jiang, Yan and Hollon, Todd C},
+  journal={arXiv preprint arXiv:2502.02409},
+  year={2025}
+}
+```
